@@ -8,7 +8,8 @@ Gemfile:
 Rails-related setup:
 
     rails g catamaran:install
-    # Now modify development.rb as needed
+
+Now modify `development.rb` as needed
 
 Quickstart coding:
 
