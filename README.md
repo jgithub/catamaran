@@ -1,11 +1,16 @@
 catamaran
 =========
+
+Gemfile:
+
+    gem 'catamaran', :git => 'git://github.com/jgithub/catamaran.git'
+
 Rails-related setup:
 
     rails g catamaran:install
     # Now modify development.rb as needed
 
-Quickstart:
+Quickstart coding:
 
     class WelcomeController < ApplicationController
       LOGGER = CatLogger.MyCompany.MyAppName.App.Controller.WelcomeController
@@ -19,9 +24,14 @@ Quickstart:
       end
     end
 
+Reload the `index` page and check out your `development.log` file
+
+
 TODO:
 
 * Better formatter support
 * Another iteration of improvements on logger.io
 * Consider capturing log messages beyond stderr, stdout, and files
+* Performance considerations
+
 
