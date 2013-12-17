@@ -19,7 +19,11 @@ Quickstart coding:
       def index
         LOGGER.io "Entering with params = #{params}" if LOGGER.io?
 
-        LOGGER.debug "The params are: #{params}" if LOGGER.debug?
+        @widget = Widget.new( params[:widget] )
+
+        LOGGER.debug "Preparing to save @widget: #{@widget}" if LOGGER.debug?
+
+        @widget.save
 
         LOGGER.io "Returning" if LOGGER.io?        
       end
