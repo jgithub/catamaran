@@ -22,11 +22,11 @@ Quickstart coding
         # LOGGER.io methods are reserved for logs related to entering and returning from methods
         LOGGER.io "Entering with params = #{params}" if LOGGER.io?
 
-        LOGGER.trace "This is my DEBUG log" if LOGGER.trace?
+        LOGGER.trace "This is my TRACE log" if LOGGER.trace?
         LOGGER.debug "This is my DEBUG log" if LOGGER.debug?
-        LOGGER.info "This is my DEBUG log" if LOGGER.info?
-        LOGGER.warn "This is my DEBUG log" if LOGGER.warn?
-        LOGGER.error "This is my DEBUG log" if LOGGER.error?
+        LOGGER.info "This is my INFO log" if LOGGER.info?
+        LOGGER.warn "This is my WARN log" if LOGGER.warn?
+        LOGGER.error "This is my ERROR log" if LOGGER.error?
 
         LOGGER.io "Returning" if LOGGER.io?        
       end
