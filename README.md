@@ -1,7 +1,8 @@
 catamaran
 =========
 
-Gemfile:
+Gemfile
+-------
 
     gem 'catamaran', :git => 'git://github.com/jgithub/catamaran.git'
 
@@ -11,28 +12,31 @@ Rails-related setup:
 
 Now modify `development.rb` as needed
 
-Quickstart coding:
+Quickstart coding
+-----------------
 
     class WelcomeController < ApplicationController
       LOGGER = CatLogger.MyCompany.MyAppName.App.Controller.WelcomeController
 
       def index
+        # LOGGER.io methods are reserved for logs related to entering and returning from methods
         LOGGER.io "Entering with params = #{params}" if LOGGER.io?
 
-        @widget = Widget.new( params[:widget] )
-
-        LOGGER.debug "Preparing to save @widget: #{@widget}" if LOGGER.debug?
-
-        @widget.save
+        LOGGER.trace "This is my DEBUG log" if LOGGER.trace?
+        LOGGER.debug "This is my DEBUG log" if LOGGER.debug?
+        LOGGER.info "This is my DEBUG log" if LOGGER.info?
+        LOGGER.warn "This is my DEBUG log" if LOGGER.warn?
+        LOGGER.error "This is my DEBUG log" if LOGGER.error?
 
         LOGGER.io "Returning" if LOGGER.io?        
       end
     end
 
-Reload the `index` page and check out your `development.log` file
+Load the `index` page and check out your `development.log` file
 
 
-TODO:
+TODO
+----
 
 * Better formatter support
 * Another iteration of improvements on logger.io
