@@ -1,3 +1,6 @@
+## 
+# Custom settings for Catamaran in development
+
 # Enable logging to STDERR
 Catamaran::Manager.stderr = true
 
