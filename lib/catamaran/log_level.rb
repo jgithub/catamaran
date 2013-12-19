@@ -57,7 +57,7 @@ module Catamaran
     end    
 
     def self.default_log_level=( value )
-      Catamaran.debug_me( "Catamaran::LogLevel#default_log_level=() - Switching the default log level to #{value}" )            
+      Catamaran.debugging( "Catamaran::LogLevel#default_log_level=() - Switching the default log level to #{value}" ) if Catamaran.debugging?            
       @@default_log_level = value
     end
 

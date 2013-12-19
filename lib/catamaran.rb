@@ -10,10 +10,17 @@ require 'catamaran/version'
 
 
 module Catamaran
-  def self.debug_me( msg )
-    # Uncomment for verbose internal debugging
-    # $stderr.puts( "[CATAMARAN INTERNAL] #{msg}" )
+  def self.debugging?
+    @debugging || false
   end
+  
+  def self.debugging( msg )
+    $stderr.puts( "[CATAMARAN DEBUGGING] #{msg}" ) if self.debugging?
+  end
+
+  def self.debugging=( value )
+    @debugging = value
+  end  
 
   def self.logger( optional_string = nil )
     Catamaran::Manager.root_logger().get_logger( optional_string )

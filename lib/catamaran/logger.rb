@@ -25,7 +25,7 @@ module Catamaran
 
           retval = @memoized_log_level
         else
-          Catamaran.debug_me( "Catamaran::Logger#log_level() - non-recrusive request for log level.  And log level is nil.  This shouldn't happen too often." )            
+          Catamaran.debugging( "Catamaran::Logger#log_level() - non-recrusive request for log level.  And log level is nil.  This shouldn't happen too often." ) if Catamaran.debugging?        
           retval = nil
         end
       end
@@ -215,10 +215,10 @@ module Catamaran
 
 
     def method_missing( meth, *args, &block )
-      Catamaran.debug_me( "Catamaran::Logger#method_missing() - meth = #{meth}" )            
+      Catamaran.debugging( "Catamaran::Logger#method_missing() - meth = #{meth}" )            
 
       if ( meth.to_sym == :define_method || meth.to_sym == :to_ary )
-        # Catamaran.debug_me( "Catamaran::Logger#method_missing() - ERROR!  Ignoring method: #{meth}" ) 
+        # Catamaran.debugging( "Catamaran::Logger#method_missing() - ERROR!  Ignoring method: #{meth}" ) 
         _msg = "[CATAMARAN INTERNAL] Catamaran::Logger#method_missing() - ERROR!  Ignoring method: #{meth}"
         $stderr.puts( _msg )
         raise Exception.new _msg        
@@ -275,14 +275,14 @@ module Catamaran
       end
 
       # Implicit return
-      Catamaran.debug_me( "Catamaran::Logger#num_loggers() - Returning #{retval} from '#{path_to_s()}'" )                  
+      Catamaran.debugging( "Catamaran::Logger#num_loggers() - Returning #{retval} from '#{path_to_s()}'" )  if Catamaran.debugging?                 
 
       retval
     end
 
     def reset
       _reset()
-      Catamaran.debug_me( "Catamaran::Logger#reset() - Reset complete." ) 
+      Catamaran.debugging( "Catamaran::Logger#reset() - Reset complete." )  if Catamaran.debugging?
     end
 
     def depth 
@@ -316,7 +316,7 @@ module Catamaran
       # @sub_loggers already exist, iterate through each and undefine the associated method missing
       if @sub_loggers
         @sub_loggers.keys.each do |method_name_as_symbol|
-          Catamaran.debug_me( "Catamaran::Logger#_reset() - Attempting to remove dynamically created method: #{method_name_as_symbol}" )
+          Catamaran.debugging( "Catamaran::Logger#_reset() - Attempting to remove dynamically created method: #{method_name_as_symbol}" )  if Catamaran.debugging?
 
           singleton = class << self; self end
           singleton.send :remove_method, method_name_as_symbol 
@@ -338,7 +338,7 @@ module Catamaran
     # Initialize this logger.
 
     def initialize( name, path_so_far, parent = nil )
-      Catamaran.debug_me( "Catamaran::Logger#initialize() - Entering with name = #{name ? name : '<nil>'}, path_so_far = #{path_so_far}, parent = #{parent ? parent : '<nil>'}" )
+      Catamaran.debugging( "Catamaran::Logger#initialize() - Entering with name = #{name ? name : '<nil>'}, path_so_far = #{path_so_far}, parent = #{parent ? parent : '<nil>'}" )  if Catamaran.debugging?
       
       @initialized_name = name
       @initialized_path_so_far = path_so_far ? path_so_far.dup : []
@@ -352,7 +352,7 @@ module Catamaran
 
       _reset()
 
-      Catamaran.debug_me( "Catamaran::Logger#initialize() - I am #{self.to_s}" ) 
+      Catamaran.debugging( "Catamaran::Logger#initialize() - I am #{self.to_s}" )  if Catamaran.debugging?
     end
 
     ##

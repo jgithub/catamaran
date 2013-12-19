@@ -25,7 +25,7 @@ module Catamaran
     # Used to reset Catamaran
 
     def self.reset
-      Catamaran.debug_me( "Catamaran::Manager#reset - Resetting Catamaran" )                  
+      Catamaran.debugging( "Catamaran::Manager#reset - Resetting Catamaran" ) if Catamaran.debugging?                  
 
       # Old way.   I used to null-out the old logger.   But resetting it is better for using the CatLogger constant
       # self.send( :_root_logger_instance=, nil )
@@ -50,7 +50,7 @@ module Catamaran
       logger = self.send( :_root_logger_instance )
 
       unless logger
-        Catamaran.debug_me( "Catamaran::Logger#root_logger() - Initializing new root logger" )                  
+        Catamaran.debugging( "Catamaran::Logger#root_logger() - Initializing new root logger" ) if Catamaran.debugging?                  
 
         path_so_far = []
         logger = Logger.new( nil, path_so_far )
@@ -62,9 +62,9 @@ module Catamaran
       end
 
       if logger && logger.instance_of?( Catamaran::Logger ) 
-        Catamaran.debug_me( "Catamaran::Logger#root_logger() - Returning #{logger}" )
+        Catamaran.debugging( "Catamaran::Logger#root_logger() - Returning #{logger}" ) if Catamaran.debugging?
       else
-        Catamaran.debug_me( "Catamaran::Logger#root_logger() - Error!  root logger is not an instance of Logger as would expect" )
+        Catamaran.debugging( "Catamaran::Logger#root_logger() - Error!  root logger is not an instance of Logger as would expect" ) if Catamaran.debugging?
       end
 
       logger
@@ -80,7 +80,7 @@ module Catamaran
 
       self.send( :_output_files ).push( output_file )
 
-      Catamaran.debug_me( "Catamaran::Logger#add_output_file() - Added output file: #{output_file}.   Number of _loggers is now #{self.send( :_output_files ).length}" )                  
+      Catamaran.debugging( "Catamaran::Logger#add_output_file() - Added output file: #{output_file}.   Number of _loggers is now #{self.send( :_output_files ).length}" ) if Catamaran.debugging?                 
     end   
 
     def self.output_files
