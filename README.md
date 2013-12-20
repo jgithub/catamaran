@@ -36,7 +36,7 @@ Load the `index` page and check out your `development.log` file
 
 Sample log entry (in your development.log file)
 -----------------------------------------------
-    IO pid-86000 [2013-12-17 17:26:39:176] MyCompany.MyAppName.App.Controller.WelcomeController - Entering with params = {"controller"=>"welcome", "action"=>"index"} (`/rails/app/controllers/welcome_controller.rb:7`:in `index`)
+    IO pid-86000 [2013-12-17 17:26:39:176] MyAppName.App.Controller.WelcomeController - Entering with params = {"controller"=>"welcome", "action"=>"index"} (`/my_rails_project/app/controllers/welcome_controller.rb:7`:in `index`)
 
 TODO
 ----
