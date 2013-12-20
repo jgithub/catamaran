@@ -6,7 +6,7 @@ I think logging is a powerful and often undervalued tool in software development
 Gemfile
 -------
 
-    gem 'catamaran', :git => 'git://github.com/jgithub/catamaran.git'
+    gem 'catamaran', '~> 0.2.0'
 
 Rails-related setup:
 
