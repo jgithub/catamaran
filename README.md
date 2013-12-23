@@ -14,8 +14,31 @@ Rails-related setup:
 
 Now modify `development.rb` as needed
 
-Quickstart coding
------------------
+Ruby Quickstart
+-------------------------------
+    require 'catamaran'
+
+    Catamaran::Manager.stderr = true
+    Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::DEBUG 
+    Catamaran::Manager.formatter_class = Catamaran::Formatter::CallerFormatter
+
+    class CatamaranWithPlainOldRubyDemo
+      LOGGER = Catamaran.logger( "CatamaranWithPlainOldRubyDemo" )
+
+      def run
+        LOGGER.debug( "Note that DEBUG messages are getting logged" ) if LOGGER.debug?
+        LOGGER.trace( "Note that TRACE messages are NOT getting logged" ) if LOGGER.trace?
+      end
+    end
+
+    CatamaranWithPlainOldRubyDemo.new.run
+
+And the output
+
+    DEBUG pid-1427 [2013-12-23 12:52:46:447]              CatamaranWithPlainOldRubyDemo - Note that DEBUG messages are getting logged (catamaran_with_plain_old_ruby_demo.rb:11:in `run')
+
+Rails Quickstart
+--------------------------------
 
     class WelcomeController < ApplicationController
       LOGGER = CatLogger.MyCompany.MyAppName.App.Controller.WelcomeController
@@ -36,9 +59,10 @@ Quickstart coding
 
 Load the `index` page and check out your `development.log` file
 
-Sample log entry (in your development.log file)
------------------------------------------------
+### Sample log entry (in your development.log file)
     IO pid-86000 [2013-12-17 17:26:39:176] MyAppName.App.Controller.WelcomeController - Entering with params = {"controller"=>"welcome", "action"=>"index"} (`/my_rails_project/app/controllers/welcome_controller.rb:7`:in `index`)
+
+
 
 Inspiration
 -----------
