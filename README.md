@@ -6,7 +6,7 @@ I think logging is a powerful and often undervalued tool in software development
 Gemfile
 -------
 
-    gem 'catamaran', '~> 0.2.0'
+    gem 'catamaran', '~> 0.3.0'
 
 Rails-related setup:
 
@@ -97,6 +97,60 @@ I'm looking for a logging utility that:
 * supports the TRACE log level (or other log level less critical than DEBUG). 
 * is capable of capturing logs at different log level thresholds from different parts of the app simultaneously
 * readily works with Rails
+
+
+Performance Considerations
+--------------------------
+    require 'catamaran'
+    require 'benchmark'
+
+    Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::INFO 
+    Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
+
+    class CatamaranPerformanceTest
+      LOGGER = Catamaran.logger( "CatamaranPerformanceTest" )
+
+      # NOTE that the log level for this test is set to INFO, 
+      # so 'warn' logs are enabled and 'debug' logs are disabled
+
+      n = 500000
+      Benchmark.bm(7) do |x|
+        x.report("warn WITHOUT if LOGGER.warn?  ") {
+          n.times do |i|
+            LOGGER.warn "This is a WARN"
+          end
+        }
+        x.report("warn WITH if LOGGER.warn?     ") {
+          n.times do |i|
+            LOGGER.warn "This is a WARN" if LOGGER.warn?
+          end
+        }
+      end
+
+      Benchmark.bm(7) do |x|
+        x.report("debug WITHOUT if LOGGER.debug?") {
+          n.times do |i|
+            LOGGER.debug "This is a DEBUG"
+          end
+        }
+        x.report("debug WITH if LOGGER.debug?   ") {
+          n.times do |i|
+            LOGGER.debug "This is a DEBUG" if LOGGER.debug?       
+          end
+        }
+      end 
+
+    end
+
+
+    #               user     system      total        real
+    # warn WITHOUT if LOGGER.warn?    6.520000   0.020000   6.540000 (  6.533741)
+    # warn WITH if LOGGER.warn?       7.110000   0.020000   7.130000 (  7.129708)
+    #               user     system      total        real
+    # debug WITHOUT if LOGGER.debug?  0.610000   0.010000   0.620000 (  0.623714)
+    # debug WITH if LOGGER.debug?     0.530000   0.010000   0.540000 (  0.544295)
+
+
 
 Ideas around what's next
 ------------------------
