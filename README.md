@@ -16,6 +16,8 @@ Now modify `development.rb` as needed
 
 Ruby Quickstart
 -------------------------------
+    require 'catamaran'
+    
     Catamaran::Manager.stderr = true
     Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::DEBUG 
     Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
@@ -143,10 +145,10 @@ Performance Considerations
     end
 
 
-    #               user     system      total        real
+    #                                     user     system      total        real
     # warn WITHOUT if LOGGER.warn?    6.520000   0.020000   6.540000 (  6.533741)
     # warn WITH if LOGGER.warn?       7.110000   0.020000   7.130000 (  7.129708)
-    #               user     system      total        real
+    #                                     user     system      total        real
     # debug WITHOUT if LOGGER.debug?  0.610000   0.010000   0.620000 (  0.623714)
     # debug WITH if LOGGER.debug?     0.530000   0.010000   0.540000 (  0.544295)
 
