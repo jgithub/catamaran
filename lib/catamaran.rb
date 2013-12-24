@@ -1,5 +1,6 @@
 require 'catamaran/logger'
 require 'catamaran/manager'
+require 'catamaran/formatter/base_formatter'
 require 'catamaran/formatter/caller_formatter'
 require 'catamaran/formatter/no_caller_formatter'
 require 'catamaran/outputter'
@@ -22,8 +23,9 @@ module Catamaran
     @debugging = value
   end  
 
-  def self.logger( optional_string = nil )
-    Catamaran::Manager.root_logger().get_logger( optional_string )
+  def self.logger( *args )
+    Catamaran.debugging( "Catamaran.logger() - Entering with args = #{args}" ) if Catamaran.debugging?        
+    Catamaran::Manager.root_logger().get_logger( *args )
   end
 
   ##

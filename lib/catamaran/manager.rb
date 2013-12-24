@@ -18,7 +18,20 @@ module Catamaran
       def formatter_class=( value )
         @formatter_class = value
       end
+
+      ##
+      # The default delimiter
+      #
+      def delimiter
+        @delimiter || '.' 
+      end      
+
+      def delimiter=( value )
+        @delimiter = value
+      end
     end
+
+
 
 
     ##

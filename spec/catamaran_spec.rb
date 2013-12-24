@@ -13,8 +13,17 @@ describe Catamaran do
     Catamaran.logger.object_id.should == Catamaran.logger.object_id
   end
 
+  context "when working with a blank path" do
+    it "should reuse the same root logger instance" do
+      Catamaran.logger( '' ).object_id.should == Catamaran.logger.object_id
+    end
+  end  
+
   it "should reuse the same logger instance when contextually the same" do
     Catamaran.logger.Company.Product.App.Model.User.object_id.should == Catamaran.logger.Company.Product.App.Model.User.object_id
+  end  
+
+  it "should reuse the same logger instance when contextually the same regardless of if the logger was determined by a string or by sequential method calls" do
     Catamaran.logger( "Company.Product.App.Model.User" ).object_id.should == Catamaran.logger.Company.Product.App.Model.User.object_id        
   end  
 
@@ -167,6 +176,20 @@ describe Catamaran do
       # DEBUG is disabled
       Catamaran.logger.should_not_receive( :_write_to_log )
       Catamaran.logger.debug( "Testing a DEBUG log" )
+    end
+
+    describe "#determine_path_and_opts_arguments" do
+      it "should return the correct path when one string parameter is specified" do
+        Catamaran.logger.send( :determine_path_and_opts_arguments, "Company.Product.App.Model.User" ).should == [ "Company.Product.App.Model.User", nil ]
+      end
+
+      it "should return the correct opts when one hash parameter is specified" do
+        Catamaran.logger.send( :determine_path_and_opts_arguments, {} ).should == [ nil, {} ]
+      end      
+
+      it "should return the correct path and opts when two parameters are specified" do
+        Catamaran.logger.send( :determine_path_and_opts_arguments, "Company.Product.App.Model.User", {} ).should == [ "Company.Product.App.Model.User", {} ]
+      end      
     end
 
     context "when using smart_log_level" do

@@ -3,6 +3,8 @@ module Catamaran
     attr_accessor :name
     attr_accessor :path
     attr_reader :parent
+    attr_reader :specified_file
+    attr_reader :specified_class
 
     ## 
     # The getter associated with retrieving the current log level for this logger.
@@ -190,13 +192,28 @@ module Catamaran
     ##
     # Usually get_logger is a reference to self, unless a path has been specified as a parameter
 
-    def get_logger( path = nil )
+    def get_logger( *args )        
       current_logger = self
+
+      path, opts = determine_path_and_opts_arguments( *args )
+      Catamaran.debugging( "Catamaran::Logger#get_logger() - path = '#{path}'  opts = #{opts} from args = #{args}" ) if Catamaran.debugging?        
+
+        
       if path
         method_names = path.split(/\./)
 
         method_names.each do |method_name|
           current_logger = current_logger.send( method_name.to_sym ) 
+        end
+      end
+
+      if opts
+        if opts[:file]
+          current_logger.instance_variable_set( :@specified_file, opts[:file] )
+        end
+
+        if opts[:class]
+          current_logger.instance_variable_set( :@specified_class, opts[:class] )
         end
       end
 
@@ -247,7 +264,7 @@ module Catamaran
       _path = self.path
       if _path
         # Implicit return
-        _path.join( delimiter )
+        _path.join( Catamaran::Manager.delimiter )
       else
         # Implicit return
         nil
@@ -294,6 +311,38 @@ module Catamaran
       "#<#{self.class}:0x#{object_id.to_s(16)}>[name=#{self.name},path=#{path_to_s},depth=#{self.depth},log_level=#{@log_level}]"
     end
 
+    protected
+
+    def determine_path_and_opts_arguments( *args )
+      Catamaran.debugging( "Catamaran::Logger#reset() - Entering with args = #{args}" )  if Catamaran.debugging?
+
+      if ( args.length == 0 )
+        opts = nil
+        path = nil
+      elsif ( args.length == 1 )
+        argument1 = args[0]
+
+        if ( argument1.nil? )
+          path = nil
+          opts = nil
+        elsif ( argument1.kind_of?( String ) )
+          path = argument1
+          opts = nil
+        elsif ( argument1.kind_of?( Hash ) )
+          path = nil
+          opts = argument1
+        else
+          raise ArgumentError.new "Unsupported argument type"
+        end
+      elsif ( args.length == 2 )
+        path, opts = *args
+      else
+        raise ArgumentError.new "Unexpected number of arguments: #{args.length}"
+      end 
+
+      [ path, opts ]
+    end   
+
     private
 
     ##
@@ -330,6 +379,12 @@ module Catamaran
     # All log statements eventually call _write_to_log
 
     def _write_to_log( log_level, msg, opts )
+      if self.specified_file || self.specified_class
+        opts = {} unless opts
+        opts[:file] = self.specified_file if self.specified_file
+        opts[:class] = self.specified_class if self.specified_class
+      end
+
       formatted_msg = Manager.formatter_class.construct_formatted_message( log_level, self.path_to_s(), msg, opts )
       Outputter.write( formatted_msg )
     end
@@ -353,13 +408,6 @@ module Catamaran
       _reset()
 
       Catamaran.debugging( "Catamaran::Logger#initialize() - I am #{self.to_s}" )  if Catamaran.debugging?
-    end
-
-    ##
-    # The delimiter is a period
-
-    def delimiter
-      "."
     end
 
   end

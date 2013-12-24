@@ -16,14 +16,12 @@ Now modify `development.rb` as needed
 
 Ruby Quickstart
 -------------------------------
-    require 'catamaran'
-
     Catamaran::Manager.stderr = true
     Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::DEBUG 
-    Catamaran::Manager.formatter_class = Catamaran::Formatter::CallerFormatter
+    Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
 
-    class CatamaranWithPlainOldRubyDemo
-      LOGGER = Catamaran.logger( "CatamaranWithPlainOldRubyDemo" )
+    class FirstRubyDemo
+      LOGGER = Catamaran.logger( "FirstRubyDemo" )
 
       def run
         LOGGER.debug( "Note that DEBUG messages are getting logged" ) if LOGGER.debug?
@@ -31,17 +29,41 @@ Ruby Quickstart
       end
     end
 
-    CatamaranWithPlainOldRubyDemo.new.run
+    class SecondRubyDemo
+      LOGGER = Catamaran.logger( { :class => name(), :file => __FILE__ } )
+
+      def run
+        LOGGER.debug( "Sample DEBUG statement", { :line => __LINE__, :method => 'run'} ) if LOGGER.debug?
+      end
+    end 
+
+    class ThirdRubyDemo
+      LOGGER = Catamaran.logger( "com.mycompany.ThirdRubyDemo", { :class => name(), :file => __FILE__ } )
+
+      def run
+        LOGGER.debug( "Sample DEBUG statement", { :line => __LINE__, :method => 'run'} ) if LOGGER.debug?
+      end
+    end   
+
+
+    puts "Catamaran VERSION = #{Catamaran::VERSION}"
+    FirstRubyDemo.new.run
+    SecondRubyDemo.new.run
+    ThirdRubyDemo.new.run
 
 And the output
 
-    DEBUG pid-1427 [2013-12-23 12:52:46:447]              CatamaranWithPlainOldRubyDemo - Note that DEBUG messages are getting logged (catamaran_with_plain_old_ruby_demo.rb:11:in `run')
+     Catamaran VERSION = 0.3.0
+     DEBUG pid-2729 [2013-12-23 19:35:35:732]                                   FirstRubyDemo - Note that DEBUG messages are getting logged
+     DEBUG pid-2729 [2013-12-23 19:35:35:732]                                                 - Sample DEBUG statement (catmaran_ruby_demos.rb:21:in `SecondRubyDemo.run')
+     DEBUG pid-2729 [2013-12-23 19:35:35:732]                     com.mycompany.ThirdRubyDemo - Sample DEBUG statement (catmaran_ruby_demos.rb:29:in `ThirdRubyDemo.run')
+
 
 Rails Quickstart
 --------------------------------
 
-    class WelcomeController < ApplicationController
-      LOGGER = CatLogger.MyCompany.MyAppName.App.Controller.WelcomeController
+    class PagesController < ApplicationController
+      LOGGER = Catamaran.logger.com.mycompany.myrailsapp.app.controllers.PagesController
 
       def index
         # LOGGER.io methods are reserved for logs related to entering and returning from methods
@@ -60,7 +82,7 @@ Rails Quickstart
 Load the `index` page and check out your `development.log` file
 
 ### Sample log entry (in your development.log file)
-    IO pid-86000 [2013-12-17 17:26:39:176] MyAppName.App.Controller.WelcomeController - Entering with params = {"controller"=>"welcome", "action"=>"index"} (`/my_rails_project/app/controllers/welcome_controller.rb:7`:in `index`)
+    IO pid-86000 [2013-12-17 17:26:39:176] pany.myrailsapp.app.controllers.PagesController - Entering with params = {"controller"=>"pages", "action"=>"index"} (`/myrailsapp/app/controllers/pages_controller.rb:7`:in `index`)
 
 
 
