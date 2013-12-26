@@ -6,7 +6,7 @@ I think logging is a powerful and often undervalued tool in software development
 Gemfile
 -------
 
-    gem 'catamaran', '~> 0.3.0'
+    gem 'catamaran', '~> 0.4.0'
 
 Rails-related setup:
 
@@ -63,7 +63,7 @@ Load the `index` page and check out your `development.log` file
 Other Ruby Examples
 -------------------
     require 'catamaran'
-    
+
     Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::DEBUG 
     Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
 
