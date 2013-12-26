@@ -1,13 +1,5 @@
 module Catamaran
   class LogLevel
-    TRACE = 1000 
-    DEBUG = 2000
-    INFO = 3000
-    WARN = 4000
-    ERROR = 5000
-    SEVERE = 6000
-    FATAL = 7000
-
     # By default, logger.io messages will be captured when the log level is DEBUG (IO_LESS_CRITICAL_THAN_INFO)
     # If that's too verbose, the level can be changed to IO_LESS_CRITICAL_THAN_DEBUG and logger.io messages won't be
     # visible unless the log level is set to TRACE.  
@@ -15,7 +7,17 @@ module Catamaran
     IO_LESS_CRITICAL_THAN_DEBUG = 1080
     IO_LESS_CRITICAL_THAN_INFO = 2080
 
+
+    TRACE = 1000 
+    DEBUG = 2000
+    INFO = 3000
+    WARN = 4000
+    ERROR = 5000
+    SEVERE = 6000
+    FATAL = 7000
     IO = IO_LESS_CRITICAL_THAN_INFO
+
+    
 
     def self.reset
       @@default_log_level = INFO

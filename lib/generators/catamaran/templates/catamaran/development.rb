@@ -13,3 +13,15 @@ Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::DEBUG
 
 # The NoCallerFormatter is the default.  
 Catamaran::Manager.formatter_class = Catamaran::Formatter::CallerFormatter
+
+# Uncomment to enable Catamaran internal debugging
+# Catamaran::debugging = true
+
+##
+# Detailed log levels
+
+# Uncomment to set the default log level for all models to be TRACE
+# Catamaran.logger.com.mycompany.myrailsapp.app.models = Catamaran::LogLevel::TRACE
+
+# Uncomment to set the default log level for all controllers to be WARN
+# Catamaran.logger.com.mycompany.myrailsapp.app.controllers = Catamaran::LogLevel::WARN

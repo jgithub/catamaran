@@ -46,7 +46,10 @@ end
 # add rails integration
 require('catamaran/integration/rails') if defined?(Rails)
 
-# Catamaran::Manager.stderr = true
+# By default, Catamaran should write messages to STDERR (in addition to anywhere else configured)
+Catamaran::Manager.stderr = true
+
+# By default, Catamaran will not write message to STDOUT
 # Catamaran::Manager.stdout = false
 
 ##
