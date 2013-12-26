@@ -37,15 +37,15 @@ module Catamaran
     ##
     # Used to reset Catamaran
 
-    def self.reset
-      Catamaran.debugging( "Catamaran::Manager#reset - Resetting Catamaran" ) if Catamaran.debugging?                  
+    def self.reset( opts = {} )
+      Catamaran.debugging( "Catamaran::Manager#reset - Resetting Catamaran with opts = #{opts}" ) if Catamaran.debugging?                  
 
       # Old way.   I used to null-out the old logger.   But resetting it is better for using the CatLogger constant
       # self.send( :_root_logger_instance=, nil )
 
       # New way
       root_logger = self.send( :_root_logger_instance )
-      root_logger.reset if root_logger
+      root_logger.reset( opts ) if root_logger
 
       # Also reset the default log level
       Catamaran::LogLevel::reset
@@ -55,6 +55,15 @@ module Catamaran
       # self.send( :_stderr_flag=, nil )
       # self.send( :_output_files=, nil )
     end
+
+    def self.hard_reset( opts = {} )
+      opts = opts.dup
+      opts[:hard_reset] = true      
+      self.reset( opts )
+    end
+
+
+
 
     ##
     # Allow the client to access the root logger

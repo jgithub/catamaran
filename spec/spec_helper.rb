@@ -5,6 +5,6 @@ RSpec.configure do |config|
   end
  
   config.before(:each) do
-    Catamaran::Manager.reset
+    Catamaran::Manager.hard_reset
   end
 end

@@ -39,8 +39,9 @@ describe Catamaran do
   it "should provide access to loggers after a reset" do
     logger = Catamaran.logger.Company.Product.App.Model.User
     Catamaran::Manager.reset
-    logger = Catamaran.logger.Company.Product.App.Model.User
-    logger.should be_instance_of( Catamaran::Logger )
+    logger2 = Catamaran.logger.Company.Product.App.Model.User
+    logger2.should be_instance_of( Catamaran::Logger )
+    logger2.object_id.should == logger.object_id
   end
 
   it "should create a new loggers for each point in the path" do
@@ -92,7 +93,7 @@ describe Catamaran do
     Catamaran.logger.Company.Product.App.Model.User
   end
 
-  context "after a reset" do
+  context "after a (soft) reset" do
     it "should have a default log level of INFO" do
       logger = Catamaran.logger
       logger.log_level.should == Catamaran::LogLevel::INFO
@@ -102,13 +103,13 @@ describe Catamaran do
       logger.log_level.should == Catamaran::LogLevel::INFO      
     end
 
-    it "should return the number of loggers to 1" do
+    it "should keep the number of loggers unchanged" do
       Catamaran.logger
       Catamaran::Manager.num_loggers.should == 1
       Catamaran.logger.Company.Product.App.Model.User
       Catamaran::Manager.num_loggers.should == 6 
       Catamaran::Manager.reset
-      Catamaran::Manager.num_loggers.should == 1      
+      Catamaran::Manager.num_loggers.should == 6      
     end
 
     it "should have the same root logger object before and after the reset" do
@@ -116,6 +117,44 @@ describe Catamaran do
       Catamaran::Manager.reset
       Catamaran.logger.object_id.should == before_logger.object_id        
     end
+
+    it "should reuse the same logger non-root logger instance" do
+      before_logger = Catamaran.logger.Company.Product.App.Model.User
+      Catamaran::Manager.reset
+      before_logger.object_id.should == Catamaran.logger.Company.Product.App.Model.User.object_id   
+    end      
+  end
+
+  context "after a hard reset" do
+    it "should have a default log level of INFO" do
+      logger = Catamaran.logger
+      logger.log_level.should == Catamaran::LogLevel::INFO
+      logger.log_level = Catamaran::LogLevel::ERROR
+      logger.log_level.should == Catamaran::LogLevel::ERROR
+      Catamaran::Manager.hard_reset
+      logger.log_level.should == Catamaran::LogLevel::INFO      
+    end
+
+    it "should reset the number of loggers to 1" do
+      Catamaran.logger
+      Catamaran::Manager.num_loggers.should == 1
+      Catamaran.logger.Company.Product.App.Model.User
+      Catamaran::Manager.num_loggers.should == 6 
+      Catamaran::Manager.hard_reset
+      Catamaran::Manager.num_loggers.should == 1      
+    end
+
+    it "should have the same root logger object before and after the reset" do
+      before_logger = Catamaran.logger
+      Catamaran::Manager.hard_reset
+      Catamaran.logger.object_id.should == before_logger.object_id        
+    end
+
+    it "should NOT reuse the same non-root logger instance" do
+      before_logger = Catamaran.logger.Company.Product.App.Model.User
+      Catamaran::Manager.hard_reset
+      before_logger.object_id.should_not == Catamaran.logger.Company.Product.App.Model.User.object_id   
+    end     
   end
 
   describe Catamaran.logger do
@@ -127,13 +166,10 @@ describe Catamaran do
 
   describe Catamaran::Manager do
     describe "#reset" do
-      it "should reset Catamaran" do
-        before_reset_logger = Catamaran.logger.Company.Product.App.Model.User
-        Catamaran.logger.num_loggers.should == 6
+      it "should call reset on the root logger" do
+        root_logger = Catamaran.logger
+        root_logger.should_receive( :reset ).once
         Catamaran::Manager.reset
-        Catamaran.logger.num_loggers.should == 1
-        after_reset_logger = Catamaran.logger.Company.Product.App.Model.User
-        before_reset_logger.object_id.should_not == after_reset_logger.object_id        
       end
     end
 

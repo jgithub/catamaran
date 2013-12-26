@@ -297,10 +297,65 @@ module Catamaran
       retval
     end
 
-    def reset
-      _reset()
-      Catamaran.debugging( "Catamaran::Logger#reset() - Reset complete." )  if Catamaran.debugging?
+
+    ##
+    # I used to delete the root level logger, but now I reset it instead.  
+    # Among other reasons, the CatLogger constant now works
+
+    def reset( opts = {} )
+      remove_instance_variable(:@memoized_log_level) if instance_variable_defined?( :@memoized_log_level )      
+      remove_instance_variable(:@log_level) if instance_variable_defined?( :@log_level )      
+
+      self.name = @initialized_name
+      self.path = @initialized_path_so_far ? @initialized_path_so_far.dup : []
+
+      if @initialized_name && @initialized_name.length > 0  # Root logger has no name
+        self.path << @initialized_name
+      end
+
+      @parent = @initialized_parent
+
+
+
+      if opts[:hard_reset]
+        ##
+        # Hard reset - delete the sub-loggers by removing references to them
+
+        # @sub_loggers already exist, iterate through each and undefine the associated method missing
+        @sub_loggers.keys.each do |method_name_as_symbol|
+          Catamaran.debugging( "Catamaran::Logger#reset() - Attempting to remove dynamically created method: #{method_name_as_symbol}" )  if Catamaran.debugging?
+          singleton = class << self; self end
+          singleton.send :remove_method, method_name_as_symbol 
+        end if @sub_loggers
+
+        @sub_loggers = {}
+        Catamaran.debugging( "Catamaran::Logger#reset() - Hard reset complete for #{self}." )  if Catamaran.debugging?
+      else
+        ##
+        # Soft reset - reset each of the sub-loggers
+
+        # @sub_loggers already exist, iterate through each and reset them
+        @sub_loggers.values.each do |logger|
+          logger.reset()
+        end if @sub_loggers
+        Catamaran.debugging( "Catamaran::Logger#reset() - Soft reset complete for #{self}." )  if Catamaran.debugging?        
+      end
     end
+
+    def soft_reset( opts = {} )
+      # This is a soft reset 
+      opts = opts.dup
+      opts[:hard_reset] = false      
+      reset( opts )
+    end
+
+    def hard_reset( opts = {} )
+      # This is a hard reset 
+      opts = opts.dup
+      opts[:hard_reset] = true
+      reset( opts )
+    end
+
 
     def depth 
       @depth
@@ -345,35 +400,6 @@ module Catamaran
 
     private
 
-    ##
-    # I used to delete the root level logger, but now I reset it instead.  
-    # Among other reasons, the CatLogger constant now works
-
-    def _reset
-      remove_instance_variable(:@memoized_log_level) if instance_variable_defined?( :@memoized_log_level )      
-      remove_instance_variable(:@log_level) if instance_variable_defined?( :@log_level )      
-
-      self.name = @initialized_name
-      self.path = @initialized_path_so_far ? @initialized_path_so_far.dup : []
-
-      if @initialized_name && @initialized_name.length > 0  # Root logger has no name
-        self.path << @initialized_name
-      end
-
-      @parent = @initialized_parent
-
-      # @sub_loggers already exist, iterate through each and undefine the associated method missing
-      if @sub_loggers
-        @sub_loggers.keys.each do |method_name_as_symbol|
-          Catamaran.debugging( "Catamaran::Logger#_reset() - Attempting to remove dynamically created method: #{method_name_as_symbol}" )  if Catamaran.debugging?
-
-          singleton = class << self; self end
-          singleton.send :remove_method, method_name_as_symbol 
-        end
-      end
-
-      @sub_loggers = {}
-    end
 
     ##
     # All log statements eventually call _write_to_log
@@ -405,7 +431,10 @@ module Catamaran
         @depth = 0
       end
 
-      _reset()
+      # Create the hash of sub_loggers as needed
+      @sub_loggers ||= {}
+
+      reset()
 
       Catamaran.debugging( "Catamaran::Logger#initialize() - I am #{self.to_s}" )  if Catamaran.debugging?
     end
