@@ -6,7 +6,7 @@ Logging is a powerful and often undervalued tool in software development.  When 
 Gemfile
 -------
 
-    gem 'catamaran', '~> 0.5.0'
+    gem 'catamaran', '~> 0.6.0'
 
 Rails-related setup:
 
@@ -64,14 +64,14 @@ Other Ruby Examples
 -------------------
     require 'catamaran'
 
-    Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::DEBUG 
+    Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::TRACE 
     Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
 
     class SecondRubyDemo
       LOGGER = Catamaran.logger( { :class => name(), :file => __FILE__ } )
 
       def run
-        LOGGER.debug( "Sample DEBUG statement", { :line => __LINE__, :method => 'run'} ) if LOGGER.debug?
+        LOGGER.trace( "Sample TRACE statement", { :line => __LINE__, :method => 'run'} ) if LOGGER.trace?
       end
     end 
 
@@ -79,7 +79,8 @@ Other Ruby Examples
       LOGGER = Catamaran.logger( "com.mycompany.ThirdRubyDemo", { :class => name(), :file => __FILE__ } )
 
       def run
-        LOGGER.debug( "Sample DEBUG statement", { :line => __LINE__, :method => 'run'} ) if LOGGER.debug?
+        LOGGER.debug( "Sample DEBUG statement", { :line => __LINE__, :method => 'run' } ) if LOGGER.debug?
+        LOGGER.debug( "Sample DEBUG statement with backtrace option", { :line => __LINE__, :method => 'run', :backtrace => true } ) if LOGGER.debug?
       end
     end   
 
@@ -88,8 +89,12 @@ Other Ruby Examples
 
 And the output
 
-     DEBUG pid-2729 [2013-12-23 19:35:35:732]                                                 - Sample DEBUG statement (catamaran_ruby_demos.rb:21:in `SecondRubyDemo.run')
-     DEBUG pid-2729 [2013-12-23 19:35:35:732]                     com.mycompany.ThirdRubyDemo - Sample DEBUG statement (catamaran_ruby_demos.rb:29:in `ThirdRubyDemo.run')
+     TRACE pid-4714 [2013-12-26 15:33:05:311]                                                 - Sample TRACE statement (catamaran_ruby_demos.rb:11:in `SecondRubyDemo.run')
+     DEBUG pid-4714 [2013-12-26 15:33:05:311]                     com.mycompany.ThirdRubyDemo - Sample DEBUG statement (catamaran_ruby_demos.rb:19:in `ThirdRubyDemo.run')
+     DEBUG pid-4714 [2013-12-26 15:33:05:311]                     com.mycompany.ThirdRubyDemo - Sample DEBUG statement with backtrace option (catamaran_ruby_demos.rb:20:in `ThirdRubyDemo.run') from:
+    catamaran_ruby_demos.rb:20:in `run'
+    catamaran_ruby_demos.rb:25:in `<main>'
+
 
 
 Inspiration

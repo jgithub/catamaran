@@ -5,7 +5,7 @@ module Catamaran
 
     class CallerFormatter < BaseFormatter
       def self.construct_formatted_message( log_level, path, msg, opts )
-        "#{base_construct_formatted_message( log_level, path, msg, opts )} (#{caller(3)[0]})"
+        "#{base_construct_formatted_message( log_level, path, msg, opts )} (#{caller(3)[0]})" +  construct_backtrace_info( opts )
       end
     end
   end

@@ -17,13 +17,24 @@ module Catamaran
         retval = sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", LogLevel.to_s(log_level), updated_path  )
       end
 
+      def self.construct_backtrace_info( opts )
+        if opts && opts[:backtrace] == true
+          msg = " from:\n#{caller(4).take(10).join("\n")}"
+        else
+          msg = ''
+        end
+
+        # Implicit return
+        msg
+      end
+
 
       def self.contruct_suffix_info( opts )
         msg = ''
 
         if opts
           if opts[:file]
-            msg << "(#{opts[:file]}"
+            msg << " (#{opts[:file]}"
 
             if opts[:line]
               msg << ":#{opts[:line]}"

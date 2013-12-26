@@ -65,7 +65,7 @@ module Catamaran
 
     def trace( msg, opts = nil )
       if trace?
-        _write_to_log( LogLevel::TRACE, msg, opts )
+        _log( LogLevel::TRACE, msg, opts )
       end
     end
 
@@ -82,7 +82,7 @@ module Catamaran
 
     def debug( msg, opts = nil )
       if debug?
-        _write_to_log( LogLevel::DEBUG, msg, opts )
+        _log( LogLevel::DEBUG, msg, opts )
       end
     end
 
@@ -100,7 +100,7 @@ module Catamaran
 
     def io( msg, opts = nil )
       if io?
-        _write_to_log( LogLevel::IO, msg, opts )
+        _log( LogLevel::IO, msg, opts )
       end
     end
 
@@ -117,7 +117,7 @@ module Catamaran
 
     def info( msg, opts = nil )
       if info?
-        _write_to_log( LogLevel::INFO, msg, opts )
+        _log( LogLevel::INFO, msg, opts )
       end
     end 
 
@@ -134,7 +134,7 @@ module Catamaran
 
     def warn( msg, opts = nil )
       if warn?
-        _write_to_log( LogLevel::WARN, msg, opts )
+        _log( LogLevel::WARN, msg, opts )
       end
     end     
 
@@ -151,7 +151,7 @@ module Catamaran
 
     def error( msg, opts = nil )
       if error?
-        _write_to_log( LogLevel::ERROR, msg, opts )
+        _log( LogLevel::ERROR, msg, opts )
       end
     end 
 
@@ -168,7 +168,7 @@ module Catamaran
 
     def severe( msg, opts = nil )
       if severe?
-        _write_to_log( LogLevel::SEVERE, msg, opts )
+        _log( LogLevel::SEVERE, msg, opts )
       end
     end   
 
@@ -185,9 +185,20 @@ module Catamaran
 
     # def fatal( msg, opts = nil )
     #   if fatal?
-    #     _write_to_log( LogLevel::FATAL, msg, opts )
+    #     _log( LogLevel::FATAL, msg, opts )
     #   end
     # end            
+
+    ##
+    # Is backtrace-level logging currently enabled? (Special case)
+
+    def backtrace?
+      if self.smart_log_level() <= LogLevel::BACKTRACE
+        true
+      else
+        false
+      end
+    end
 
     ##
     # Usually get_logger is a reference to self, unless a path has been specified as a parameter
@@ -402,13 +413,21 @@ module Catamaran
 
 
     ##
-    # All log statements eventually call _write_to_log
+    # All log statements eventually call _log
 
-    def _write_to_log( log_level, msg, opts )
+    def _log( log_level, msg, opts )
       if self.specified_file || self.specified_class
         opts = {} unless opts
         opts[:file] = self.specified_file if self.specified_file
         opts[:class] = self.specified_class if self.specified_class
+      end
+
+      if opts && opts[:backtrace] == true
+        # If backtrace is NOT enabled, then delete it from the options before it gets passed to the formatter
+        if !backtrace?
+          opts = opts.dup
+          opts.delete(:backtrace)
+        end
       end
 
       formatted_msg = Manager.formatter_class.construct_formatted_message( log_level, self.path_to_s(), msg, opts )

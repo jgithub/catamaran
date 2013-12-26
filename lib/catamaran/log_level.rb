@@ -4,26 +4,36 @@ module Catamaran
     # If that's too verbose, the level can be changed to IO_LESS_CRITICAL_THAN_DEBUG and logger.io messages won't be
     # visible unless the log level is set to TRACE.  
     # See development.rb for an example of this
-    IO_LESS_CRITICAL_THAN_DEBUG = 1080
-    IO_LESS_CRITICAL_THAN_INFO = 2080
+    IO_LESS_CRITICAL_THAN_DEBUG = 2080
+    IO_LESS_CRITICAL_THAN_INFO = 3080
 
+    BACKTRACE_LESS_CRITICAL_THAN_TRACE = 1070
+    BACKTRACE_LESS_CRITICAL_THAN_DEBUG = 2070
+    BACKTRACE_LESS_CRITICAL_THAN_INFO = 3070
 
-    TRACE = 1000 
-    DEBUG = 2000
-    INFO = 3000
-    WARN = 4000
-    ERROR = 5000
-    SEVERE = 6000
-    FATAL = 7000
+    ALL = 100
+
+    TRACE = 2000 
+    DEBUG = 3000
+    INFO = 4000
+    WARN = 5000
+    ERROR = 6000
+    SEVERE = 7000
+    FATAL = 8000
+
     IO = IO_LESS_CRITICAL_THAN_INFO
+    BACKTRACE = BACKTRACE_LESS_CRITICAL_THAN_INFO
 
-    
+
 
     def self.reset
       @@default_log_level = INFO
 
       self.send( :remove_const, 'IO' ) if self.const_defined?( 'IO' )
       self.const_set( 'IO', IO_LESS_CRITICAL_THAN_INFO )      
+
+      self.send( :remove_const, 'BACKTRACE' ) if self.const_defined?( 'BACKTRACE' )
+      self.const_set( 'BACKTRACE', BACKTRACE_LESS_CRITICAL_THAN_INFO )       
     end
 
     self.reset()
@@ -70,6 +80,15 @@ module Catamaran
 
     def self.log_level_io
       IO
-    end    
+    end 
+
+    def self.log_level_backtrace=( value )
+      self.send( :remove_const, 'BACKTRACE' ) if self.const_defined?( 'BACKTRACE' )
+      self.const_set( 'BACKTRACE', value ) 
+    end
+
+    def self.log_level_backtrace
+      BACKTRACE
+    end        
   end
 end

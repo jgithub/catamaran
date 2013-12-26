@@ -83,7 +83,7 @@ describe Catamaran do
       Catamaran::Manager.num_loggers.should == 1
     end
 
-    it "should be that the IO log level is the same as IO_LESS_CRITICAL_THAN_INFO" do
+    it "should have an IO log level that corresponds to IO_LESS_CRITICAL_THAN_INFO" do
       Catamaran::LogLevel::IO.should == Catamaran::LogLevel::IO_LESS_CRITICAL_THAN_INFO
     end
   end
@@ -203,14 +203,14 @@ describe Catamaran do
 
     it "should write the log if the log has sufficient weight" do
       Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
-      Catamaran.logger.should_receive( :_write_to_log ).once
+      Catamaran.logger.should_receive( :_log ).once
       Catamaran.logger.info( "Testing an INFO log" )
     end
 
     it "should NOT write the log if the log does NOT have sufficient" do
       Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
       # DEBUG is disabled
-      Catamaran.logger.should_not_receive( :_write_to_log )
+      Catamaran.logger.should_not_receive( :_log )
       Catamaran.logger.debug( "Testing a DEBUG log" )
     end
 
