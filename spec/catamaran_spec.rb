@@ -275,14 +275,14 @@ describe Catamaran do
 
     it "should write the log message if the requested log does not have sufficient weight" do
       Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
-      Catamaran.logger.should_receive( :_log ).once
+      Catamaran.logger.should_receive( :log ).once
       Catamaran.logger.info( "Testing an INFO log" )
     end
 
     it "should NOT write the log message if the requested log does not have sufficient weight" do
       Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
       # DEBUG is disabled
-      Catamaran.logger.should_not_receive( :_log )
+      Catamaran.logger.should_not_receive( :log )
       Catamaran.logger.debug( "Testing a DEBUG log" )
     end
 

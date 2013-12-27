@@ -146,7 +146,7 @@ module Catamaran
 
     def trace( msg, opts = nil )
       if trace?
-        _log( LogLevel::TRACE, msg, opts )
+        log( LogLevel::TRACE, msg, opts )
       end
     end
 
@@ -163,7 +163,7 @@ module Catamaran
 
     def debug( msg, opts = nil )
       if debug?
-        _log( LogLevel::DEBUG, msg, opts )
+        log( LogLevel::DEBUG, msg, opts )
       end
     end
 
@@ -181,7 +181,7 @@ module Catamaran
 
     def io( msg, opts = nil )
       if io?
-        _log( LogLevel::IO, msg, opts )
+        log( LogLevel::IO, msg, opts )
       end
     end
 
@@ -198,7 +198,7 @@ module Catamaran
 
     def info( msg, opts = nil )
       if info?
-        _log( LogLevel::INFO, msg, opts )
+        log( LogLevel::INFO, msg, opts )
       end
     end 
 
@@ -215,7 +215,7 @@ module Catamaran
 
     def warn( msg, opts = nil )
       if warn?
-        _log( LogLevel::WARN, msg, opts )
+        log( LogLevel::WARN, msg, opts )
       end
     end     
 
@@ -232,7 +232,7 @@ module Catamaran
 
     def error( msg, opts = nil )
       if error?
-        _log( LogLevel::ERROR, msg, opts )
+        log( LogLevel::ERROR, msg, opts )
       end
     end 
 
@@ -249,7 +249,7 @@ module Catamaran
 
     def severe( msg, opts = nil )
       if severe?
-        _log( LogLevel::SEVERE, msg, opts )
+        log( LogLevel::SEVERE, msg, opts )
       end
     end   
 
@@ -266,7 +266,7 @@ module Catamaran
 
     # def fatal( msg, opts = nil )
     #   if fatal?
-    #     _log( LogLevel::FATAL, msg, opts )
+    #     log( LogLevel::FATAL, msg, opts )
     #   end
     # end            
 
@@ -487,9 +487,9 @@ module Catamaran
 
 
     ##
-    # All log statements eventually call _log
+    # All log statements eventually call log
 
-    def _log( log_level, msg, opts )
+    def log( log_level, msg, opts )
 
       if self.specified_file || self.specified_class
         opts = {} unless opts
