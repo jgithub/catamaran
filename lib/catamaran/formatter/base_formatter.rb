@@ -19,7 +19,7 @@ module Catamaran
 
       def self.construct_backtrace_info( opts )
         if opts && opts[:backtrace] == true
-          msg = " from:\n#{caller(4).take(10).join("\n")}"
+          msg = " from:\n#{caller(5).take(10).join("\n")}"
         else
           msg = ''
         end

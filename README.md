@@ -6,7 +6,7 @@ Logging is a powerful and often undervalued tool in software development.  When 
 Gemfile
 -------
 
-    gem 'catamaran', '~> 0.6.0'
+    gem 'catamaran', '~> 0.7.0'
 
 Rails-related setup:
 
@@ -64,14 +64,15 @@ Other Ruby Examples
 -------------------
     require 'catamaran'
 
-    Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::TRACE 
+    Catamaran.logger.log_level = Catamaran::LogLevel::INFO 
+    Catamaran.logger.backtrace_log_level = Catamaran::LogLevel::ERROR 
     Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
 
     class SecondRubyDemo
       LOGGER = Catamaran.logger( { :class => name(), :file => __FILE__ } )
 
       def run
-        LOGGER.trace( "Sample TRACE statement", { :line => __LINE__, :method => 'run'} ) if LOGGER.trace?
+        LOGGER.info( "Sample INFO statement", { :line => __LINE__, :method => 'run'} ) if LOGGER.info?
       end
     end 
 
@@ -79,8 +80,9 @@ Other Ruby Examples
       LOGGER = Catamaran.logger( "com.mycompany.ThirdRubyDemo", { :class => name(), :file => __FILE__ } )
 
       def run
-        LOGGER.debug( "Sample DEBUG statement", { :line => __LINE__, :method => 'run' } ) if LOGGER.debug?
-        LOGGER.debug( "Sample DEBUG statement with backtrace option", { :line => __LINE__, :method => 'run', :backtrace => true } ) if LOGGER.debug?
+        LOGGER.warn( "Sample WARN statement", { :line => __LINE__, :method => 'run' } ) if LOGGER.warn?
+        LOGGER.warn( "Sample WARN statement with backtrace option", { :line => __LINE__, :method => 'run', :backtrace => true } ) if LOGGER.warn?
+        LOGGER.error( "Sample ERROR statement with backtrace option", { :line => __LINE__, :method => 'run', :backtrace => true } ) if LOGGER.error?        
       end
     end   
 
@@ -89,11 +91,13 @@ Other Ruby Examples
 
 And the output
 
-     TRACE pid-4714 [2013-12-26 15:33:05:311]                                                 - Sample TRACE statement (catamaran_ruby_demos.rb:11:in `SecondRubyDemo.run')
-     DEBUG pid-4714 [2013-12-26 15:33:05:311]                     com.mycompany.ThirdRubyDemo - Sample DEBUG statement (catamaran_ruby_demos.rb:19:in `ThirdRubyDemo.run')
-     DEBUG pid-4714 [2013-12-26 15:33:05:311]                     com.mycompany.ThirdRubyDemo - Sample DEBUG statement with backtrace option (catamaran_ruby_demos.rb:20:in `ThirdRubyDemo.run') from:
-    catamaran_ruby_demos.rb:20:in `run'
-    catamaran_ruby_demos.rb:25:in `<main>'
+      INFO pid-5973 [2013-12-27 17:18:09:115]                                                 - Sample INFO statement (catamaran_ruby_demos.rb:12:in `SecondRubyDemo.run')
+      WARN pid-5973 [2013-12-27 17:18:09:115]                     com.mycompany.ThirdRubyDemo - Sample WARN statement (catamaran_ruby_demos.rb:20:in `ThirdRubyDemo.run')
+      WARN pid-5973 [2013-12-27 17:18:09:115]                     com.mycompany.ThirdRubyDemo - Sample WARN statement with backtrace option (catamaran_ruby_demos.rb:21:in `ThirdRubyDemo.run')
+     ERROR pid-5973 [2013-12-27 17:18:09:115]                     com.mycompany.ThirdRubyDemo - Sample ERROR statement with backtrace option (catamaran_ruby_demos.rb:22:in `ThirdRubyDemo.run') from:
+    catamaran_ruby_demos.rb:22:in `run'
+    catamaran_ruby_demos.rb:27:in `<main>'
+
 
 
 
@@ -108,7 +112,9 @@ I'm looking for a logging utility that:
 * supports the TRACE log level (or other log level less critical than DEBUG). 
 * is capable of capturing logs at different log level thresholds from different parts of the app simultaneously
 * readily works with Rails
-
+* http://stackoverflow.com/questions/462651/rails-logger-format-string-configuration
+* http://stackoverflow.com/questions/3654827/logging-in-rails-app
+* http://stackoverflow.com/questions/11991967/rails-log-too-verbose
 
 Performance Considerations
 --------------------------
@@ -185,7 +191,6 @@ ex:
     require 'catamaran'
     require 'benchmark'
 
-    Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::INFO 
     Catamaran::Manager.stderr = false
 
     class CatamaranPerformanceTest
@@ -239,8 +244,9 @@ Ideas around what's next
 * Consider capturing log messages beyond stderr, stdout, and local files
 * Ongoing performance considerations
 * Something like `filter_parameter_logging`
-* Optional backtrace support for certain logs
 * Color support
+* Log rotation
+* Heroku support
 
 
 

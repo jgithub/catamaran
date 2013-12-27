@@ -1,6 +1,10 @@
 require 'spec_helper'
 
 describe Catamaran do
+  before(:each) do
+    Catamaran::Manager.stderr = false
+  end
+
   it "should define TRACE" do
     Catamaran::LogLevel::TRACE.should > 0
   end
@@ -20,11 +24,11 @@ describe Catamaran do
   end  
 
   it "should reuse the same logger instance when contextually the same" do
-    Catamaran.logger.Company.Product.App.Model.User.object_id.should == Catamaran.logger.Company.Product.App.Model.User.object_id
+    Catamaran.logger.com.mycompany.myrailsproject.app.models.User.object_id.should == Catamaran.logger.com.mycompany.myrailsproject.app.models.User.object_id
   end  
 
   it "should reuse the same logger instance when contextually the same regardless of if the logger was determined by a string or by sequential method calls" do
-    Catamaran.logger( "Company.Product.App.Model.User" ).object_id.should == Catamaran.logger.Company.Product.App.Model.User.object_id        
+    Catamaran.logger( "com.mycompany.myrailsproject.app.models.User" ).object_id.should == Catamaran.logger.com.mycompany.myrailsproject.app.models.User.object_id        
   end  
 
   it "should provide access to the root logger through CatLogger" do
@@ -37,9 +41,9 @@ describe Catamaran do
   end
 
   it "should provide access to loggers after a reset" do
-    logger = Catamaran.logger.Company.Product.App.Model.User
+    logger = Catamaran.logger.com.mycompany.myrailsproject.app.models.User
     Catamaran::Manager.reset
-    logger2 = Catamaran.logger.Company.Product.App.Model.User
+    logger2 = Catamaran.logger.com.mycompany.myrailsproject.app.models.User
     logger2.should be_instance_of( Catamaran::Logger )
     logger2.object_id.should == logger.object_id
   end
@@ -47,14 +51,20 @@ describe Catamaran do
   it "should create a new loggers for each point in the path" do
     Catamaran.logger
     Catamaran::Manager.num_loggers.should == 1
-    Catamaran.logger.Company.Product.App.Model.User
-    Catamaran::Manager.num_loggers.should == 6    
+    Catamaran.logger.com.mycompany.myrailsproject.app.models.User
+    Catamaran::Manager.num_loggers.should == 7    
   end     
 
-  it "should be possible for the user to modify the default log level" do
-    Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::TRACE
-    Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::TRACE
+  it "should be possible for the user to modify the log level of root logger" do
+    Catamaran.logger.log_level = Catamaran::LogLevel::TRACE
+    Catamaran.logger.log_level.should == Catamaran::LogLevel::TRACE
   end
+
+  it "should be possible for the user to modify the log level of non-root loggers" do
+    Catamaran.logger.whatever.log_level.should be_nil
+    Catamaran.logger.whatever.log_level = Catamaran::LogLevel::TRACE
+    Catamaran.logger.whatever.log_level.should == Catamaran::LogLevel::TRACE
+  end  
 
   it "should not provide the same object ID for different paths" do
     Catamaran.logger.A.C.object_id.should_not == Catamaran.logger.B.C
@@ -63,24 +73,50 @@ describe Catamaran do
 
   context "by default" do
     it "should log INFO messages" do
-      logger = Catamaran.logger.Company.Product.App.Model.User
+      logger = Catamaran.logger.com.mycompany.myrailsproject.app.models.User
     end
 
     it "should NOT log DEBUG messages" do
-      logger = Catamaran.logger.Company.Product.App.Model.User
+      logger = Catamaran.logger.com.mycompany.myrailsproject.app.models.User
     end
 
-    it "should have an INFO log level set for the root logger" do
-      Catamaran.logger.log_level.should == Catamaran::LogLevel::INFO
+    describe "the Root Logger" do
+      it "should have a log level set to INFO" do
+        Catamaran.logger.log_level.should == Catamaran::LogLevel::INFO
+      end
+
+      it "should have a backtrace log level set to WARN" do
+        Catamaran.logger.backtrace_log_level.should == Catamaran::LogLevel::WARN
+      end      
     end
 
-    it "should have an UNSET log level for any non-root loggers" do
-      Catamaran.logger.log_level = Catamaran::LogLevel::ERROR
-      Catamaran.logger.Test.log_level.should be_nil
-    end
+    describe "a non-root Logger" do
+      before(:each) do
+        @non_root_logger = Catamaran.logger.whatever
+      end
 
-    it "should have one logger configured" do
-      Catamaran::Manager.num_loggers.should == 1
+
+      it "should have a log level set to INFO" do
+        @non_root_logger.log_level.should be_nil
+      end
+
+      it "should have a backtrace log level set to WARN" do
+        @non_root_logger.backtrace_log_level.should be_nil
+      end 
+
+      it "should have a smart log level set to INFO" do
+        @non_root_logger.smart_log_level.should == Catamaran::LogLevel::INFO
+      end
+
+      it "should have a smart backtrace log level set to WARN" do
+        @non_root_logger.smart_backtrace_log_level.should == Catamaran::LogLevel::WARN
+      end      
+    end    
+
+    describe "Catamaran::Manager" do
+      it "should have one logger configured" do
+        Catamaran::Manager.num_loggers.should == 1
+      end
     end
 
     it "should have an IO log level that corresponds to IO_LESS_CRITICAL_THAN_INFO" do
@@ -88,28 +124,32 @@ describe Catamaran do
     end
   end
 
-  context "when the log level is set to INFO" do
-    Catamaran.logger.log_level = Catamaran::LogLevel::INFO
-    Catamaran.logger.Company.Product.App.Model.User
-  end
-
   context "after a (soft) reset" do
-    it "should have a default log level of INFO" do
-      logger = Catamaran.logger
-      logger.log_level.should == Catamaran::LogLevel::INFO
-      logger.log_level = Catamaran::LogLevel::ERROR
-      logger.log_level.should == Catamaran::LogLevel::ERROR
-      Catamaran::Manager.reset
-      logger.log_level.should == Catamaran::LogLevel::INFO      
-    end
+    describe "the Root Logger" do
+      it "should have a log level of INFO" do
+        logger = Catamaran.logger
+        logger.log_level = Catamaran::LogLevel::ERROR
+        logger.log_level.should == Catamaran::LogLevel::ERROR
+        Catamaran::Manager.reset
+        logger.log_level.should == Catamaran::LogLevel::INFO      
+      end
 
-    it "should keep the number of loggers unchanged" do
+      it "should have a backtrace log level of WARN" do
+        logger = Catamaran.logger
+        logger.backtrace_log_level = Catamaran::LogLevel::ERROR
+        logger.backtrace_log_level.should == Catamaran::LogLevel::ERROR
+        Catamaran::Manager.reset
+        logger.backtrace_log_level.should == Catamaran::LogLevel::WARN      
+      end 
+    end   
+
+    it "should have the same number of loggers" do
       Catamaran.logger
       Catamaran::Manager.num_loggers.should == 1
-      Catamaran.logger.Company.Product.App.Model.User
-      Catamaran::Manager.num_loggers.should == 6 
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.User
+      Catamaran::Manager.num_loggers.should == 7 
       Catamaran::Manager.reset
-      Catamaran::Manager.num_loggers.should == 6      
+      Catamaran::Manager.num_loggers.should == 7      
     end
 
     it "should have the same root logger object before and after the reset" do
@@ -119,9 +159,9 @@ describe Catamaran do
     end
 
     it "should reuse the same logger non-root logger instance" do
-      before_logger = Catamaran.logger.Company.Product.App.Model.User
+      before_logger = Catamaran.logger.com.mycompany.myrailsproject.app.models.User
       Catamaran::Manager.reset
-      before_logger.object_id.should == Catamaran.logger.Company.Product.App.Model.User.object_id   
+      before_logger.object_id.should == Catamaran.logger.com.mycompany.myrailsproject.app.models.User.object_id   
     end      
   end
 
@@ -138,8 +178,8 @@ describe Catamaran do
     it "should reset the number of loggers to 1" do
       Catamaran.logger
       Catamaran::Manager.num_loggers.should == 1
-      Catamaran.logger.Company.Product.App.Model.User
-      Catamaran::Manager.num_loggers.should == 6 
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.User
+      Catamaran::Manager.num_loggers.should == 7 
       Catamaran::Manager.hard_reset
       Catamaran::Manager.num_loggers.should == 1      
     end
@@ -151,17 +191,44 @@ describe Catamaran do
     end
 
     it "should NOT reuse the same non-root logger instance" do
-      before_logger = Catamaran.logger.Company.Product.App.Model.User
+      before_logger = Catamaran.logger.com.mycompany.myrailsproject.app.models.User
       Catamaran::Manager.hard_reset
-      before_logger.object_id.should_not == Catamaran.logger.Company.Product.App.Model.User.object_id   
+      before_logger.object_id.should_not == Catamaran.logger.com.mycompany.myrailsproject.app.models.User.object_id   
     end     
   end
 
-  describe Catamaran.logger do
-    it "should be able to inherit it's parent's log level" do
-      Catamaran.logger.log_level = Catamaran::LogLevel::ERROR
-      Catamaran.logger.Test.smart_log_level.should == Catamaran::LogLevel::ERROR
-    end  
+  describe "Backtrace Logging" do
+    it "should capture a backtrace when the requested log is DEBUG and the log_level and backtrace_log_level are TRACE" do
+      logger = Catamaran.logger
+      logger.should_receive( :_format_msg ).with( Catamaran::LogLevel::DEBUG, 'message', {:backtrace=>true} )
+      logger.log_level = Catamaran::LogLevel::TRACE
+      logger.backtrace_log_level = Catamaran::LogLevel::TRACE
+      Catamaran.logger.debug( "message", { :backtrace => true } ) if Catamaran.logger.debug?
+    end
+
+    it "should capture a backtrace when the requested log is DEBUG and the log_level and backtrace_log_level are DEBUG" do
+      logger = Catamaran.logger
+      logger.should_receive( :_format_msg ).with( Catamaran::LogLevel::DEBUG, 'message', {:backtrace=>true} )
+      logger.log_level = Catamaran::LogLevel::DEBUG
+      logger.backtrace_log_level = Catamaran::LogLevel::DEBUG
+      Catamaran.logger.debug( "message", { :backtrace => true } ) if Catamaran.logger.debug?
+    end    
+
+    it "should capture a backtrace when the requested log is DEBUG and the log_level is TRACE and the backtrace_log_level is DEBUG" do
+      logger = Catamaran.logger
+      logger.should_receive( :_format_msg ).with( Catamaran::LogLevel::DEBUG, 'message', {:backtrace=>true} )
+      logger.log_level = Catamaran::LogLevel::TRACE
+      logger.backtrace_log_level = Catamaran::LogLevel::DEBUG
+      Catamaran.logger.debug( "message", { :backtrace => true } ) if Catamaran.logger.debug?
+    end
+
+    it "should NOT capture a backtrace when the backtrace_log_level is greater than the level of the log" do
+      logger = Catamaran.logger
+      logger.log_level = Catamaran::LogLevel::TRACE
+      logger.backtrace_log_level = Catamaran::LogLevel::WARN      
+      logger.should_receive( :_format_msg ).with( Catamaran::LogLevel::DEBUG, 'message', {} )
+      Catamaran.logger.debug( "message", { :backtrace => true } ) if Catamaran.logger.debug?
+    end    
   end
 
   describe Catamaran::Manager do
@@ -186,28 +253,33 @@ describe Catamaran do
   end
 
   describe Catamaran::Logger do
+    it "should inherit it's log level (via smart_log_level) from an ancestor" do
+      Catamaran.logger.com.mycompany.myproject.controllers.log_level = Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myproject.controllers.MyController.smart_log_level.should == Catamaran::LogLevel::ERROR
+    end 
+
     it "should inherit the log level from the root logger as needed" do
       Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
-      Catamaran.logger.Company.Product.App.Model.User.log_level.should be_nil     
-      Catamaran.logger.Company.Product.App.Model.User.smart_log_level.should == Catamaran::LogLevel::INFO
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.User.log_level.should be_nil     
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.User.smart_log_level.should == Catamaran::LogLevel::INFO
     end
 
     it "should have a nil log_level unless explicitly set" do
-      Catamaran.logger.Company.Product.App.Model.User.log_level.should be_nil     
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.User.log_level.should be_nil     
     end
 
     it "should always have a smart_log_level set" do
-      Catamaran.logger.Company.Product.App.Model.User.log_level.should be_nil           
-      Catamaran.logger.Company.Product.App.Model.User.smart_log_level.should_not be_nil
+      Catamaran.logger.whatever.log_level.should be_nil           
+      Catamaran.logger.whatever.smart_log_level.should_not be_nil
     end    
 
-    it "should write the log if the log has sufficient weight" do
+    it "should write the log message if the requested log does not have sufficient weight" do
       Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
       Catamaran.logger.should_receive( :_log ).once
       Catamaran.logger.info( "Testing an INFO log" )
     end
 
-    it "should NOT write the log if the log does NOT have sufficient" do
+    it "should NOT write the log message if the requested log does not have sufficient weight" do
       Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
       # DEBUG is disabled
       Catamaran.logger.should_not_receive( :_log )
@@ -216,7 +288,7 @@ describe Catamaran do
 
     describe "#determine_path_and_opts_arguments" do
       it "should return the correct path when one string parameter is specified" do
-        Catamaran.logger.send( :determine_path_and_opts_arguments, "Company.Product.App.Model.User" ).should == [ "Company.Product.App.Model.User", nil ]
+        Catamaran.logger.send( :determine_path_and_opts_arguments, "mycompany.myrailsproject.app.models.User" ).should == [ "mycompany.myrailsproject.app.models.User", nil ]
       end
 
       it "should return the correct opts when one hash parameter is specified" do
@@ -224,19 +296,17 @@ describe Catamaran do
       end      
 
       it "should return the correct path and opts when two parameters are specified" do
-        Catamaran.logger.send( :determine_path_and_opts_arguments, "Company.Product.App.Model.User", {} ).should == [ "Company.Product.App.Model.User", {} ]
+        Catamaran.logger.send( :determine_path_and_opts_arguments, "mycompany.myrailsproject.app.models.User", {} ).should == [ "mycompany.myrailsproject.app.models.User", {} ]
       end      
     end
 
-    context "when using smart_log_level" do
-      it "should inherit the log level from a parent" do
-        Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::INFO
-        Catamaran.logger.Company.Product.App.Model.log_level = Catamaran::LogLevel::ERROR
-        Catamaran.logger.Company.Product.App.Controller.log_level = Catamaran::LogLevel::WARN
-        Catamaran.logger.Company.Product.App.Model.User.smart_log_level.should == Catamaran::LogLevel::ERROR
-        Catamaran.logger.Company.Product.App.Controller.UsersController.smart_log_level.should == Catamaran::LogLevel::WARN
-        Catamaran.logger.Company.Product.App.smart_log_level.should == Catamaran::LogLevel::INFO
-      end
+    it "should inherit the log level (via smart_log_level) from it's ancestors" do
+      Catamaran.logger.log_level = Catamaran::LogLevel::INFO
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.log_level = Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.controllers.log_level = Catamaran::LogLevel::WARN
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.User.smart_log_level.should == Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.controllers.UsersController.smart_log_level.should == Catamaran::LogLevel::WARN
+      Catamaran.logger.Company.Product.App.smart_log_level.should == Catamaran::LogLevel::INFO
     end
 
     context "when the log level is specified, the default is no longer used" do
@@ -246,5 +316,5 @@ describe Catamaran do
         Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::ERROR
       end
     end
-  end    
-end
+  end # ends describe Catamaran::Logger do
+end  # ends describe Catamaran do

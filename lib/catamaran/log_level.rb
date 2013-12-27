@@ -7,10 +7,6 @@ module Catamaran
     IO_LESS_CRITICAL_THAN_DEBUG = 2080
     IO_LESS_CRITICAL_THAN_INFO = 3080
 
-    BACKTRACE_LESS_CRITICAL_THAN_TRACE = 1070
-    BACKTRACE_LESS_CRITICAL_THAN_DEBUG = 2070
-    BACKTRACE_LESS_CRITICAL_THAN_INFO = 3070
-
     ALL = 100
 
     TRACE = 2000 
@@ -22,18 +18,10 @@ module Catamaran
     FATAL = 8000
 
     IO = IO_LESS_CRITICAL_THAN_INFO
-    BACKTRACE = BACKTRACE_LESS_CRITICAL_THAN_INFO
-
-
 
     def self.reset
-      @@default_log_level = INFO
-
       self.send( :remove_const, 'IO' ) if self.const_defined?( 'IO' )
-      self.const_set( 'IO', IO_LESS_CRITICAL_THAN_INFO )      
-
-      self.send( :remove_const, 'BACKTRACE' ) if self.const_defined?( 'BACKTRACE' )
-      self.const_set( 'BACKTRACE', BACKTRACE_LESS_CRITICAL_THAN_INFO )       
+      self.const_set( 'IO', IO_LESS_CRITICAL_THAN_INFO )            
     end
 
     self.reset()
@@ -62,16 +50,7 @@ module Catamaran
       end
 
       retval
-    end
-
-    def self.default_log_level
-      @@default_log_level
-    end    
-
-    def self.default_log_level=( value )
-      Catamaran.debugging( "Catamaran::LogLevel#default_log_level=() - Switching the default log level to #{value}" ) if Catamaran.debugging?            
-      @@default_log_level = value
-    end
+    end   
 
     def self.log_level_io=( value )
       self.send( :remove_const, 'IO' ) if self.const_defined?( 'IO' )
@@ -80,15 +59,6 @@ module Catamaran
 
     def self.log_level_io
       IO
-    end 
-
-    def self.log_level_backtrace=( value )
-      self.send( :remove_const, 'BACKTRACE' ) if self.const_defined?( 'BACKTRACE' )
-      self.const_set( 'BACKTRACE', value ) 
-    end
-
-    def self.log_level_backtrace
-      BACKTRACE
     end        
   end
 end

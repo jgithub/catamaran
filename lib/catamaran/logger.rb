@@ -15,7 +15,7 @@ module Catamaran
         retval = @log_level
       elsif self.parent.nil?
         # No parent means this logger(self) is the root logger.  So use the default log level
-        retval = Catamaran::LogLevel.default_log_level()
+        retval = Catamaran::LogLevel::INFO
       else
         recursive = opts[:recursive]
         if recursive == true 
@@ -51,6 +51,87 @@ module Catamaran
       @log_level = value
       remove_instance_variable( :@memoized_log_level ) if instance_variable_defined?( :@memoized_log_level )      
     end
+
+
+
+
+
+
+
+
+
+
+
+
+    def backtrace_log_level( opts = {} )
+      if instance_variable_defined?( :@backtrace_log_level ) && @backtrace_log_level
+        retval = @backtrace_log_level
+      elsif self.parent.nil?
+        # No parent means this logger(self) is the root logger.  So use the default log level
+        retval = Catamaran::LogLevel::WARN
+      else
+        recursive = opts[:recursive]
+        if recursive == true 
+
+          # Remember the log level we found so we don't have to recursively look for it ever time
+          if !instance_variable_defined?( :@memoized_backtrace_log_level ) || @memoized_backtrace_log_level.nil?
+            @memoized_backtrace_log_level = parent.backtrace_log_level( opts ) if parent
+          end
+
+          retval = @memoized_backtrace_log_level
+        else
+          Catamaran.debugging( "Catamaran::Logger#backtrace_log_level() - non-recrusive request for log level.  And log level is nil.  This shouldn't happen too often." ) if Catamaran.debugging?        
+          retval = nil
+        end
+      end
+
+      # Implicit return
+      retval
+    end
+
+    ## 
+    # We usually want a logger to have a level.   The smart_backtrace_log_level() reader determines a log level even if one isn't
+    # explicitly set on this logger instance by making use of recursion up to the root logger if needed
+
+    def smart_backtrace_log_level
+      self.backtrace_log_level( { :recursive => true } )
+    end
+
+    ##
+    # Setter used to explicitly set the log level for this logger
+
+    def backtrace_log_level=( value )
+      @backtrace_log_level = value
+      remove_instance_variable( :@memoized_backtrace_log_level ) if instance_variable_defined?( :@memoized_backtrace_log_level )      
+    end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     ##
     # Is trace-level logging currently enabled?
@@ -189,16 +270,8 @@ module Catamaran
     #   end
     # end            
 
-    ##
-    # Is backtrace-level logging currently enabled? (Special case)
 
-    def backtrace?
-      if self.smart_log_level() <= LogLevel::BACKTRACE
-        true
-      else
-        false
-      end
-    end
+
 
     ##
     # Usually get_logger is a reference to self, unless a path has been specified as a parameter
@@ -315,7 +388,8 @@ module Catamaran
 
     def reset( opts = {} )
       remove_instance_variable(:@memoized_log_level) if instance_variable_defined?( :@memoized_log_level )      
-      remove_instance_variable(:@log_level) if instance_variable_defined?( :@log_level )      
+      remove_instance_variable(:@log_level) if instance_variable_defined?( :@log_level ) 
+      remove_instance_variable(:@backtrace_log_level) if instance_variable_defined?( :@backtrace_log_level )      
 
       self.name = @initialized_name
       self.path = @initialized_path_so_far ? @initialized_path_so_far.dup : []
@@ -374,7 +448,7 @@ module Catamaran
 
     def to_s
       # Implicit return
-      "#<#{self.class}:0x#{object_id.to_s(16)}>[name=#{self.name},path=#{path_to_s},depth=#{self.depth},log_level=#{@log_level}]"
+      "#<#{self.class}:0x#{object_id.to_s(16)}>[name=#{self.name},path=#{path_to_s},depth=#{self.depth},log_level=#{@log_level},backtrace_log_level=#{@backtrace_log_level}]"
     end
 
     protected
@@ -416,6 +490,7 @@ module Catamaran
     # All log statements eventually call _log
 
     def _log( log_level, msg, opts )
+
       if self.specified_file || self.specified_class
         opts = {} unless opts
         opts[:file] = self.specified_file if self.specified_file
@@ -423,15 +498,35 @@ module Catamaran
       end
 
       if opts && opts[:backtrace] == true
-        # If backtrace is NOT enabled, then delete it from the options before it gets passed to the formatter
-        if !backtrace?
+        _smart_backtrace_log_level = self.smart_backtrace_log_level()
+
+        # If the specified log message has a level that's 
+        # greater than or equal to the current backtrace_log_level
+        Catamaran.debugging( "Catamaran::Logger#initialize() - Considering a backtrace:  log_level = #{log_level}, backtrace_log_level = #{_smart_backtrace_log_level}" )  if Catamaran.debugging?
+
+
+        if log_level >= _smart_backtrace_log_level
+          # no-op -- display the backtrace
+        else
+          # overwrite opts with a new value
+
+          # For performance it's probably acceptable to just remove the backtrace option from the options list...
+          # opts.delete(:backtrace)
+        
+          # But for now it might be cleaner to duplicate the hash first, before modifying it 
           opts = opts.dup
-          opts.delete(:backtrace)
+          opts.delete( :backtrace )
         end
       end
 
-      formatted_msg = Manager.formatter_class.construct_formatted_message( log_level, self.path_to_s(), msg, opts )
-      Outputter.write( formatted_msg )
+      # Implicit return
+      Outputter.write( _format_msg( log_level, msg, opts ) )
+    end
+
+
+    def _format_msg( log_level, msg, opts )
+      # Implicit return
+      Manager.formatter_class.construct_formatted_message( log_level, self.path_to_s(), msg, opts )
     end
 
     ##
