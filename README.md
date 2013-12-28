@@ -20,6 +20,8 @@ Ruby Quickstart
 
     class FirstRubyDemo
       LOGGER = Catamaran.logger( "FirstRubyDemo" )
+      # or equivalently: 
+      # LOGGER = Catamaran.logger.FirstRubyDemo
 
       def run
         LOGGER.warn( "Note that WARN messages are getting logged" ) if LOGGER.warn?
@@ -41,23 +43,14 @@ Rails Quickstart
       LOGGER = Catamaran.logger.com.mycompany.myrailsapp.app.controllers.PagesController
 
       def index
-        # LOGGER.io methods are reserved for logs related to entering and returning from methods
-        LOGGER.io "Entering with params = #{params}" if LOGGER.io?
-
-        LOGGER.trace "This is my TRACE log" if LOGGER.trace?
-        LOGGER.debug "This is my DEBUG log" if LOGGER.debug?
-        LOGGER.info "This is my INFO log" if LOGGER.info?
-        LOGGER.warn "This is my WARN log" if LOGGER.warn?
-        LOGGER.error "This is my ERROR log" if LOGGER.error?
-
-        LOGGER.io "Returning" if LOGGER.io?        
+        LOGGER.debug "Entering with params = #{params}" if LOGGER.debug?       
       end
     end
 
 Load the `index` page and check out your `development.log` file
 
 ### Sample log entry (in your development.log file)
-    IO pid-86000 [2013-12-17 17:26:39:176] pany.myrailsapp.app.controllers.PagesController - Entering with params = {"controller"=>"pages", "action"=>"index"} (`/myrailsapp/app/controllers/pages_controller.rb:7`:in `index`)
+    DEBUG pid-86000 [2013-12-17 17:26:39:176] pany.myrailsapp.app.controllers.PagesController - Entering with params = {"controller"=>"pages", "action"=>"index"} (`/myrailsapp/app/controllers/pages_controller.rb:7`:in `index`)
 
 
 Other Ruby Examples
@@ -246,7 +239,8 @@ Ideas around what's next
 * Something like `filter_parameter_logging`
 * Color support
 * Log rotation
-* Heroku support
+* Heroku support (https://blog.heroku.com/archives/2013/7/15/logging-on-heroku)
+* Buffered file I/O considerations
 
 
 
