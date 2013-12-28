@@ -16,36 +16,40 @@ Now modify `config/initializers/catamaran/development.rb` as needed
 
 Ruby Quickstart
 ---------------
-    require 'catamaran'
+```ruby
+require 'catamaran'
 
-    class FirstRubyDemo
-      LOGGER = Catamaran.logger( "FirstRubyDemo" )
-      # or equivalently: 
-      # LOGGER = Catamaran.logger.FirstRubyDemo
+class FirstRubyDemo
+  LOGGER = Catamaran.logger( "FirstRubyDemo" )
+  # or equivalently: 
+  # LOGGER = Catamaran.logger.FirstRubyDemo
 
-      def run
-        LOGGER.warn( "Note that WARN messages are getting logged" ) if LOGGER.warn?
-        LOGGER.trace( "Note that TRACE messages are NOT getting logged" ) if LOGGER.trace?
-      end
-    end
+  def run
+    LOGGER.info( "Note that INFO messages are getting captured by default" )
+    LOGGER.debug( "Note that DEBUG messages are NOT getting captured by default" ) if LOGGER.debug?
+  end
+end
 
-    FirstRubyDemo.new.run
+FirstRubyDemo.new.run
+```
 
 And the output
 
-     WARN pid-2729 [2013-12-23 19:35:35:732]                                   FirstRubyDemo - Note that WARN messages are getting logged
+     INFO pid-2729 [2013-12-23 19:35:35:732]                                   FirstRubyDemo - Note that INFO messages are getting captured by default
 
 
 Rails Quickstart
 ----------------
 
-    class PagesController < ApplicationController
-      LOGGER = Catamaran.logger.com.mycompany.myrailsapp.app.controllers.PagesController
+```ruby
+class PagesController < ApplicationController
+  LOGGER = Catamaran.logger.com.mycompany.myrailsapp.app.controllers.PagesController
 
-      def index
-        LOGGER.debug "Entering with params = #{params}" if LOGGER.debug?       
-      end
-    end
+  def index
+    LOGGER.debug "Entering with params = #{params}" if LOGGER.debug?       
+  end
+end
+```
 
 Load the `index` page and check out your `development.log` file
 
@@ -55,32 +59,34 @@ Load the `index` page and check out your `development.log` file
 
 Other Ruby Examples
 -------------------
-    require 'catamaran'
+```ruby
+require 'catamaran'
 
-    Catamaran.logger.log_level = Catamaran::LogLevel::INFO 
-    Catamaran.logger.backtrace_log_level = Catamaran::LogLevel::ERROR 
-    Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
+Catamaran.logger.log_level = Catamaran::LogLevel::INFO 
+Catamaran.logger.backtrace_log_level = Catamaran::LogLevel::ERROR 
+Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
 
-    class SecondRubyDemo
-      LOGGER = Catamaran.logger( { :class => name(), :file => __FILE__ } )
+class SecondRubyDemo
+  LOGGER = Catamaran.logger( { :class => name(), :file => __FILE__ } )
 
-      def run
-        LOGGER.info( "Sample INFO statement", { :line => __LINE__, :method => 'run'} ) if LOGGER.info?
-      end
-    end 
+  def run
+    LOGGER.info( "Sample INFO statement", { :line => __LINE__, :method => 'run'} )
+  end
+end 
 
-    class ThirdRubyDemo
-      LOGGER = Catamaran.logger( "com.mycompany.ThirdRubyDemo", { :class => name(), :file => __FILE__ } )
+class ThirdRubyDemo
+  LOGGER = Catamaran.logger( "com.mycompany.ThirdRubyDemo", { :class => name(), :file => __FILE__ } )
 
-      def run
-        LOGGER.warn( "Sample WARN statement", { :line => __LINE__, :method => 'run' } ) if LOGGER.warn?
-        LOGGER.warn( "Sample WARN statement with backtrace option", { :line => __LINE__, :method => 'run', :backtrace => true } ) if LOGGER.warn?
-        LOGGER.error( "Sample ERROR statement with backtrace option", { :line => __LINE__, :method => 'run', :backtrace => true } ) if LOGGER.error?        
-      end
-    end   
+  def run
+    LOGGER.warn( "Sample WARN statement", { :line => __LINE__, :method => 'run' } )
+    LOGGER.warn( "Sample WARN statement with backtrace option", { :line => __LINE__, :method => 'run', :backtrace => true } )
+    LOGGER.error( "Sample ERROR statement with backtrace option", { :line => __LINE__, :method => 'run', :backtrace => true } )        
+  end
+end   
 
-    SecondRubyDemo.new.run
-    ThirdRubyDemo.new.run
+SecondRubyDemo.new.run
+ThirdRubyDemo.new.run
+```
 
 And the output
 
@@ -113,54 +119,56 @@ Performance Considerations
 --------------------------
 
 ### With or without `if LOGGER.debug?`
-    require 'catamaran'
-    require 'benchmark'
+```ruby
+require 'catamaran'
+require 'benchmark'
 
-    Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::INFO 
-    Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
-    Catamaran::Manager.stderr = false
+Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::INFO 
+Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
+Catamaran::Manager.stderr = false
 
-    class CatamaranPerformanceTest
-      LOGGER = Catamaran.logger( "CatamaranPerformanceTest" )
+class CatamaranPerformanceTest
+  LOGGER = Catamaran.logger( "CatamaranPerformanceTest" )
 
-      # NOTE that the log level for this test is set to INFO, 
-      # so 'warn' logs are enabled and 'debug' logs are disabled
+  # NOTE that the log level for this test is set to INFO, 
+  # so 'warn' logs are enabled and 'debug' logs are disabled
 
-      n = 500000
-      Benchmark.bm(7) do |x|
-        x.report("warn WITHOUT if LOGGER.warn?  ") {
-          n.times do |i|
-            LOGGER.warn "Based on the current log level, this log is being captured"
-          end
-        }
-        x.report("warn WITH if LOGGER.warn?     ") {
-          n.times do |i|
-            LOGGER.warn "Based on the current log level, this log is being captured" if LOGGER.warn?
-          end
-        }
+  n = 500000
+  Benchmark.bm(7) do |x|
+    x.report("warn WITHOUT if LOGGER.warn?  ") {
+      n.times do |i|
+        LOGGER.warn "Based on the current log level, this log is being captured"
       end
+    }
+    x.report("warn WITH if LOGGER.warn?     ") {
+      n.times do |i|
+        LOGGER.warn "Based on the current log level, this log is being captured" if LOGGER.warn?
+      end
+    }
+  end
 
-      Benchmark.bm(7) do |x|
-        x.report("debug WITHOUT if LOGGER.debug?") {
-          n.times do |i|
-            LOGGER.debug "Based on the current log level, this log is NOT being captured"
-          end
-        }
-        x.report("debug WITH if LOGGER.debug?   ") {
-          n.times do |i|
-            LOGGER.debug "Based on the current log level, this log is NOT being captured" if LOGGER.debug?       
-          end
-        }
-      end 
+  Benchmark.bm(7) do |x|
+    x.report("debug WITHOUT if LOGGER.debug?") {
+      n.times do |i|
+        LOGGER.debug "Based on the current log level, this log is NOT being captured"
+      end
+    }
+    x.report("debug WITH if LOGGER.debug?   ") {
+      n.times do |i|
+        LOGGER.debug "Based on the current log level, this log is NOT being captured" if LOGGER.debug?       
+      end
+    }
+  end 
 
-    end
+end
 
-    #                                     user     system      total        real
-    # warn WITHOUT if LOGGER.warn?    6.940000   0.010000   6.950000 (  6.950691)
-    # warn WITH if LOGGER.warn?       7.650000   0.000000   7.650000 (  7.658004)
-    #                                     user     system      total        real
-    # debug WITHOUT if LOGGER.debug?  0.660000   0.010000   0.670000 (  0.665775)
-    # debug WITH if LOGGER.debug?     0.560000   0.010000   0.570000 (  0.574397)
+#                                     user     system      total        real
+# warn WITHOUT if LOGGER.warn?    6.940000   0.010000   6.950000 (  6.950691)
+# warn WITH if LOGGER.warn?       7.650000   0.000000   7.650000 (  7.658004)
+#                                     user     system      total        real
+# debug WITHOUT if LOGGER.debug?  0.660000   0.010000   0.670000 (  0.665775)
+# debug WITH if LOGGER.debug?     0.560000   0.010000   0.570000 (  0.574397)
+```
 
 #### Summary
 
@@ -168,51 +176,57 @@ Performance Considerations
 
 ex:
 
-    LOGGER.trace "This is a TRACE log" if LOGGER.trace?
-    LOGGER.debug "This is a DEBUG log" if LOGGER.debug?
+```ruby
+LOGGER.trace "This is a TRACE log" if LOGGER.trace?
+LOGGER.debug "This is a DEBUG log" if LOGGER.debug?
+```
 
 * For log messages that are usually *enabled* in the production environment ( INFO, WARN, ERROR, SEVERE ), it's generally better to invoke the log WITHOUT first testing the log level
 
 ex:
 
-    LOGGER.info "This is a INFO log"
-    LOGGER.warn "This is a WARN log"
-    LOGGER.error "This is a ERROR log" 
+```ruby
+LOGGER.info "This is a INFO log"
+LOGGER.warn "This is a WARN log"
+LOGGER.error "This is a ERROR log" 
+```
 
 ### NoCallerFormatter vs CallerFormatter
 
-    require 'catamaran'
-    require 'benchmark'
+```ruby
+require 'catamaran'
+require 'benchmark'
 
-    Catamaran::Manager.stderr = false
+Catamaran::Manager.stderr = false
 
-    class CatamaranPerformanceTest
-      LOGGER = Catamaran.logger( "CatamaranPerformanceTest" )
+class CatamaranPerformanceTest
+  LOGGER = Catamaran.logger( "CatamaranPerformanceTest" )
 
-      n = 500000
-      Benchmark.bm(7) do |x|
-        Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
-        
-        x.report("Using NoCallerFormatter") {
-          n.times do |i|
-            LOGGER.error "This is a ERROR log"
-          end
-        }   
-        
-        Catamaran::Manager.formatter_class = Catamaran::Formatter::CallerFormatter
-        
-        x.report("Using CallerFormatter") {
-          n.times do |i|
-            LOGGER.error "This is a ERROR log"
-          end
-        }
+  n = 500000
+  Benchmark.bm(7) do |x|
+    Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
+    
+    x.report("Using NoCallerFormatter") {
+      n.times do |i|
+        LOGGER.error "This is a ERROR log"
       end
-    end
-                             
+    }   
+    
+    Catamaran::Manager.formatter_class = Catamaran::Formatter::CallerFormatter
+    
+    x.report("Using CallerFormatter") {
+      n.times do |i|
+        LOGGER.error "This is a ERROR log"
+      end
+    }
+  end
+end
+                         
 
-    #                              user     system      total        real
-    # Using NoCallerFormatter  6.850000   0.010000   6.860000 (  6.864649)
-    # Using CallerFormatter   14.700000   0.150000  14.850000 ( 14.867592)
+#                              user     system      total        real
+# Using NoCallerFormatter  6.850000   0.010000   6.860000 (  6.864649)
+# Using CallerFormatter   14.700000   0.150000  14.850000 ( 14.867592)
+```
 
 #### Summary
 
