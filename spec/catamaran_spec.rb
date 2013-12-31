@@ -222,7 +222,7 @@ describe Catamaran do
       Catamaran.logger.debug( "message", { :backtrace => true } ) if Catamaran.logger.debug?
     end
 
-    it "should NOT capture a backtrace when the backtrace_log_level is greater than the level of the log" do
+    it "should NOT capture a backtrace when the backtrace_log_level is greater than the severity of the log" do
       logger = Catamaran.logger
       logger.log_level = Catamaran::LogLevel::TRACE
       logger.backtrace_log_level = Catamaran::LogLevel::WARN      
@@ -273,13 +273,13 @@ describe Catamaran do
       Catamaran.logger.whatever.smart_log_level.should_not be_nil
     end    
 
-    it "should write the log message if the requested log does not have sufficient weight" do
+    it "should write the log message if the requested log does not have sufficient severity" do
       Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
       Catamaran.logger.should_receive( :log ).once
       Catamaran.logger.info( "Testing an INFO log" )
     end
 
-    it "should NOT write the log message if the requested log does not have sufficient weight" do
+    it "should NOT write the log message if the requested log does not have sufficient severity" do
       Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
       # DEBUG is disabled
       Catamaran.logger.should_not_receive( :log )
@@ -310,7 +310,7 @@ describe Catamaran do
     end
 
     context "when the log level is specified, the default is no longer used" do
-      it "should be " do
+      it "should makeuse of the specified log level rather than the inherited one" do
         Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
         Catamaran.logger.log_level = Catamaran::LogLevel::ERROR
         Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::ERROR

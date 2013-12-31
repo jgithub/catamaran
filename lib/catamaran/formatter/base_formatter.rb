@@ -4,7 +4,7 @@ module Catamaran
     # Construct a properly formatted log message based
 
     class BaseFormatter
-      def self.base_construct_formatted_message( log_level, path, msg, opts )
+      def self.base_construct_formatted_message( severity, path, msg, opts )
         # Truncate on the left
         if path.length > 47
           updated_path = path.dup[-47,47]
@@ -14,7 +14,7 @@ module Catamaran
 
         # TODO:  Abstract out the logger so that it's easy to use different formats
         # Implicit return
-        retval = sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", LogLevel.to_s(log_level), updated_path  )
+        retval = sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", LogLevel.to_s( severity ), updated_path  )
       end
 
       def self.construct_backtrace_info( opts )

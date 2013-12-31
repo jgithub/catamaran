@@ -114,6 +114,7 @@ I'm looking for a logging utility that:
 * http://stackoverflow.com/questions/462651/rails-logger-format-string-configuration
 * http://stackoverflow.com/questions/3654827/logging-in-rails-app
 * http://stackoverflow.com/questions/11991967/rails-log-too-verbose
+* http://www.ietf.org/rfc/rfc3164.txt
 
 Performance Considerations
 --------------------------

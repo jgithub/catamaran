@@ -489,7 +489,7 @@ module Catamaran
     ##
     # All log statements eventually call log
 
-    def log( log_level, msg, opts )
+    def log( severity, msg, opts )
 
       if self.specified_file || self.specified_class
         opts = {} unless opts
@@ -502,10 +502,10 @@ module Catamaran
 
         # If the specified log message has a level that's 
         # greater than or equal to the current backtrace_log_level
-        Catamaran.debugging( "Catamaran::Logger#initialize() - Considering a backtrace:  log_level = #{log_level}, backtrace_log_level = #{_smart_backtrace_log_level}" )  if Catamaran.debugging?
+        Catamaran.debugging( "Catamaran::Logger#initialize() - Considering a backtrace:  severity = #{severity}, backtrace_log_level = #{_smart_backtrace_log_level}" )  if Catamaran.debugging?
 
 
-        if log_level >= _smart_backtrace_log_level
+        if severity >= _smart_backtrace_log_level
           # no-op -- display the backtrace
         else
           # overwrite opts with a new value
@@ -520,13 +520,13 @@ module Catamaran
       end
 
       # Implicit return
-      Outputter.write( _format_msg( log_level, msg, opts ) )
+      Outputter.write( _format_msg( severity, msg, opts ) )
     end
 
 
-    def _format_msg( log_level, msg, opts )
+    def _format_msg( severity, msg, opts )
       # Implicit return
-      Manager.formatter_class.construct_formatted_message( log_level, self.path_to_s(), msg, opts )
+      Manager.formatter_class.construct_formatted_message( severity, self.path_to_s(), msg, opts )
     end
 
     ##

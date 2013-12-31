@@ -12,10 +12,14 @@ module Catamaran
     TRACE = 2000 
     DEBUG = 3000
     INFO = 4000
-    WARN = 5000
-    ERROR = 6000
-    SEVERE = 7000
-    FATAL = 8000
+
+    # Save room for Notice even Catamaran currently doesn't use it  http://www.faqs.org/rfcs/rfc3164.html
+    # NOTICE = 5000  
+    
+    WARN = 6000
+    ERROR = 7000
+    SEVERE = 8000
+    FATAL = 9000
 
     IO = IO_LESS_CRITICAL_THAN_INFO
 
