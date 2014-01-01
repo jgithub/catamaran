@@ -20,14 +20,21 @@ Ruby Quickstart
 require 'catamaran'
 
 class FirstRubyDemo
-  LOGGER = Catamaran.logger( "FirstRubyDemo" )
+  LOGGER = Catamaran.logger( "com.mytld.FirstRubyDemo" )
   # or equivalently: 
-  # LOGGER = Catamaran.logger.FirstRubyDemo
+  # LOGGER = Catamaran.logger.com.mytld.FirstRubyDemo
 
   def run
-    LOGGER.notice( "Note that NOTICE messages are captured by default" ) if LOGGER.notice?
-    LOGGER.info( "Note that INFO messages are NOT captured by default" ) if LOGGER.info?
-    LOGGER.debug( "Note that DEBUG messages are NOT captured by default" ) if LOGGER.debug?
+    # Disabled by default
+    LOGGER.trace( "TRACE logs are NOT captured by default" ) if LOGGER.trace?    
+    LOGGER.debug( "DEBUG logs are NOT captured by default" ) if LOGGER.debug?
+    LOGGER.info( "INFO logs are NOT captured by default" ) if LOGGER.info?
+
+    # Enabled by default
+    LOGGER.notice( "NOTICE logs are captured by default" )
+    LOGGER.warn( "WARN logs are captured by default" )
+    LOGGER.error( "ERROR logs are captured by default" )
+    LOGGER.severe( "SEVERE logs are captured by default" )
   end
 end
 
@@ -36,7 +43,12 @@ FirstRubyDemo.new.run
 
 And the output
 
-    NOTICE pid-2729 [2013-12-23 19:35:35:732]                                   FirstRubyDemo - Note that NOTICE messages are getting captured by default
+```
+NOTICE pid-23773 [2014-01-01 13:09:47:551]                     com.mytld.FirstRubyDemo - NOTICE logs are captured by default
+  WARN pid-23773 [2014-01-01 13:09:47:551]                     com.mytld.FirstRubyDemo - WARN logs are captured by default
+ ERROR pid-23773 [2014-01-01 13:09:47:551]                     com.mytld.FirstRubyDemo - ERROR logs are captured by default
+SEVERE pid-23773 [2014-01-01 13:09:47:551]                     com.mytld.FirstRubyDemo - SEVERE logs are captured by default
+```
 
 
 Rails Quickstart
@@ -44,7 +56,7 @@ Rails Quickstart
 
 ```ruby
 class PagesController < ApplicationController
-  LOGGER = Catamaran.logger.com.mycompany.myrailsapp.app.controllers.PagesController
+  LOGGER = Catamaran.logger.com.mytld.myrailsapp.app.controllers.PagesController
 
   def index
     LOGGER.debug "Entering with params = #{params}" if LOGGER.debug?       
@@ -55,7 +67,8 @@ end
 Load the `index` page and check out your `development.log` file
 
 ### Sample log entry (in your development.log file)
-    DEBUG pid-86000 [2013-12-17 17:26:39:176] pany.myrailsapp.app.controllers.PagesController - Entering with params = {"controller"=>"pages", "action"=>"index"} (`/myrailsapp/app/controllers/pages_controller.rb:7`:in `index`)
+
+    DEBUG pid-86000 [2013-12-17 17:26:39:176] ytld.myrailsapp.app.controllers.PagesController - Entering with params = {"controller"=>"pages", "action"=>"index"} (`/myrailsapp/app/controllers/pages_controller.rb:7`:in `index`)
 
 Log Levels
 ----------
@@ -82,7 +95,7 @@ class SecondRubyDemo
 end 
 
 class ThirdRubyDemo
-  LOGGER = Catamaran.logger( "com.mycompany.ThirdRubyDemo", { :class => name(), :file => __FILE__ } )
+  LOGGER = Catamaran.logger( "com.mytld.ThirdRubyDemo", { :class => name(), :file => __FILE__ } )
 
   def run
     LOGGER.warn( "Sample WARN statement", { :line => __LINE__, :method => 'run' } )
@@ -98,9 +111,9 @@ ThirdRubyDemo.new.run
 And the output
 
       INFO pid-5973 [2013-12-27 17:18:09:115]                                                 - Sample INFO statement (catamaran_ruby_demos.rb:12:in `SecondRubyDemo.run')
-      WARN pid-5973 [2013-12-27 17:18:09:115]                     com.mycompany.ThirdRubyDemo - Sample WARN statement (catamaran_ruby_demos.rb:20:in `ThirdRubyDemo.run')
-      WARN pid-5973 [2013-12-27 17:18:09:115]                     com.mycompany.ThirdRubyDemo - Sample WARN statement with backtrace option (catamaran_ruby_demos.rb:21:in `ThirdRubyDemo.run')
-     ERROR pid-5973 [2013-12-27 17:18:09:115]                     com.mycompany.ThirdRubyDemo - Sample ERROR statement with backtrace option (catamaran_ruby_demos.rb:22:in `ThirdRubyDemo.run') from:
+      WARN pid-5973 [2013-12-27 17:18:09:115]                     com.mytld.ThirdRubyDemo - Sample WARN statement (catamaran_ruby_demos.rb:20:in `ThirdRubyDemo.run')
+      WARN pid-5973 [2013-12-27 17:18:09:115]                     com.mytld.ThirdRubyDemo - Sample WARN statement with backtrace option (catamaran_ruby_demos.rb:21:in `ThirdRubyDemo.run')
+     ERROR pid-5973 [2013-12-27 17:18:09:115]                     com.mytld.ThirdRubyDemo - Sample ERROR statement with backtrace option (catamaran_ruby_demos.rb:22:in `ThirdRubyDemo.run') from:
     catamaran_ruby_demos.rb:22:in `run'
     catamaran_ruby_demos.rb:27:in `<main>'
 
