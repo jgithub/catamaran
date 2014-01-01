@@ -1,11 +1,8 @@
 ## 
 # Custom settings for Catamaran in development
 
-# Enable logging to STDERR
-Catamaran::Manager.stderr = true
-
 # The default log level is INFO.  Switch to DEBUG in development
-Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::DEBUG
+Catamaran.logger.log_level = Catamaran::LogLevel::DEBUG
 
 # By default, logger.io messages will be captured when the log level is DEBUG (IO_LESS_CRITICAL_THAN_INFO)
 # If that's too verbose, uncomment this
