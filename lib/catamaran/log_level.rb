@@ -55,6 +55,8 @@ module Catamaran
         'IO'
       when IO_LESS_CRITICAL_THAN_DEBUG
         'IO'
+      when IO_LESS_CRITICAL_THAN_NOTICE
+        'IO'        
       else
         # Unknown
         ''
