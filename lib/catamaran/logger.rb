@@ -12,12 +12,15 @@ module Catamaran
 
     def log_level( opts = {} )
       if instance_variable_defined?( :@log_level ) && @log_level
-        retval = @log_level
+        # Implicit return
+        @log_level
       elsif self.parent.nil?
         # No parent means this logger(self) is the root logger.  So use the default log level
-        retval = Catamaran::LogLevel::NOTICE
+        
+        # Implicit return
+        Catamaran::LogLevel::NOTICE
       else
-        recursive = opts[:recursive]
+        recursive = ( opts[:recursive] == true || opts[:be_populated] == true )
         if recursive == true 
 
           # Remember the log level we found so we don't have to recursively look for it ever time
@@ -25,15 +28,15 @@ module Catamaran
             @memoized_log_level = parent.log_level( opts ) if parent
           end
 
-          retval = @memoized_log_level
+          # Implicit return
+          @memoized_log_level
         else
           Catamaran.debugging( "Catamaran::Logger#log_level() - non-recrusive request for log level.  And log level is nil.  This shouldn't happen too often." ) if Catamaran.debugging?        
-          retval = nil
+          
+          # Implicit return
+          nil
         end
       end
-
-      # Implicit return
-      retval
     end
 
     ## 
@@ -137,7 +140,7 @@ module Catamaran
     # Is trace-level logging currently enabled?
 
     def trace?
-      if self.smart_log_level() <= LogLevel::TRACE
+      if self.log_level( { :be_populated => true } ) <= LogLevel::TRACE
         true
       else
         false
@@ -145,7 +148,8 @@ module Catamaran
     end
 
     def trace( msg, opts = nil )
-      if trace?
+      # Duplicated the logic from trace? for performance considerations          
+      if self.log_level( { :be_populated => true } ) <= LogLevel::TRACE
         log( LogLevel::TRACE, msg, opts )
       end
     end
@@ -154,7 +158,7 @@ module Catamaran
     # Is debug-level logging currently enabled?
 
     def debug?
-      if self.smart_log_level() <= LogLevel::DEBUG
+      if self.log_level( { :be_populated => true } ) <= LogLevel::DEBUG
         true
       else
         false
@@ -162,7 +166,8 @@ module Catamaran
     end
 
     def debug( msg, opts = nil )
-      if debug?
+       # Duplicated the logic from debug? for performance considerations            
+      if self.log_level( { :be_populated => true } ) <= LogLevel::DEBUG
         log( LogLevel::DEBUG, msg, opts )
       end
     end
@@ -172,7 +177,7 @@ module Catamaran
     # Is io-level logging currently enabled?
 
     def io?
-      if self.smart_log_level() <= LogLevel::IO
+      if self.log_level( { :be_populated => true } ) <= LogLevel::IO
         true
       else
         false
@@ -180,7 +185,8 @@ module Catamaran
     end
 
     def io( msg, opts = nil )
-      if io?
+       # Duplicated the logic from io? for performance considerations      
+      if self.log_level( { :be_populated => true } ) <= LogLevel::IO
         log( LogLevel::IO, msg, opts )
       end
     end
@@ -189,7 +195,7 @@ module Catamaran
     # Is info-level logging currently enabled?
 
     def info?
-      if self.smart_log_level() <= LogLevel::INFO
+      if self.log_level( { :be_populated => true } ) <= LogLevel::INFO
         true
       else
         false
@@ -197,7 +203,8 @@ module Catamaran
     end
 
     def info( msg, opts = nil )
-      if info?
+       # Duplicated the logic from info? for performance considerations
+      if self.log_level( { :be_populated => true } ) <= LogLevel::INFO
         log( LogLevel::INFO, msg, opts )
       end
     end 
@@ -206,7 +213,7 @@ module Catamaran
     # Is notice-level logging currently enabled?
 
     def notice?
-      if self.smart_log_level() <= LogLevel::NOTICE
+      if self.log_level( { :be_populated => true } ) <= LogLevel::NOTICE
         true
       else
         false
@@ -214,7 +221,8 @@ module Catamaran
     end
 
     def notice( msg, opts = nil )
-      if notice?
+      # Duplicated the logic from notice? for performance considerations
+      if self.log_level( { :be_populated => true } ) <= LogLevel::NOTICE
         log( LogLevel::NOTICE, msg, opts )
       end
     end    
@@ -223,7 +231,7 @@ module Catamaran
     # Is warn-level logging currently enabled?
 
     def warn?
-      if self.smart_log_level() <= LogLevel::WARN
+      if self.log_level( { :be_populated => true } ) <= LogLevel::WARN
         true
       else
         false
@@ -231,7 +239,8 @@ module Catamaran
     end
 
     def warn( msg, opts = nil )
-      if warn?
+      # Duplicated the logic from warn? for performance considerations
+      if self.log_level( { :be_populated => true } ) <= LogLevel::WARN
         log( LogLevel::WARN, msg, opts )
       end
     end     
@@ -240,7 +249,7 @@ module Catamaran
     # Is error-level logging currently enabled?
 
     def error?
-      if self.smart_log_level() <= LogLevel::ERROR
+      if self.log_level( { :be_populated => true } ) <= LogLevel::ERROR
         true
       else
         false
@@ -248,7 +257,8 @@ module Catamaran
     end
 
     def error( msg, opts = nil )
-      if error?
+      # Duplicated the logic from error? for performance considerations
+      if self.log_level( { :be_populated => true } ) <= LogLevel::ERROR
         log( LogLevel::ERROR, msg, opts )
       end
     end 
@@ -257,7 +267,7 @@ module Catamaran
     # Is severe-level logging currently enabled?
 
     def severe?
-      if self.smart_log_level() <= LogLevel::SEVERE
+      if self.log_level( { :be_populated => true } ) <= LogLevel::SEVERE
         true
       else
         false
@@ -265,7 +275,8 @@ module Catamaran
     end
 
     def severe( msg, opts = nil )
-      if severe?
+      # Duplicated the logic from severe? for performance considerations      
+      if self.log_level( { :be_populated => true } ) <= LogLevel::SEVERE
         log( LogLevel::SEVERE, msg, opts )
       end
     end   
