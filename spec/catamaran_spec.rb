@@ -259,9 +259,9 @@ describe Catamaran do
     end 
 
     it "should inherit the log level from the root logger as needed" do
-      Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::NOTICE
+      root_log_level = Catamaran.logger.smart_log_level      
       Catamaran.logger.com.mycompany.myrailsproject.app.models.User.log_level.should be_nil     
-      Catamaran.logger.com.mycompany.myrailsproject.app.models.User.smart_log_level.should == Catamaran::LogLevel::NOTICE
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.User.smart_log_level.should == root_log_level
     end
 
     it "should have a nil log_level unless explicitly set" do
@@ -274,15 +274,15 @@ describe Catamaran do
     end    
 
     it "should write the log message if the requested log does have sufficient severity" do
-      Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::NOTICE
+      Catamaran.logger.smart_log_level.should <= Catamaran::LogLevel::NOTICE
       Catamaran.logger.should_receive( :log ).once
       Catamaran.logger.notice( "A NOTICE log should be received" )
     end
 
     it "should NOT write the log message if the requested log does not have sufficient severity" do
-      Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::NOTICE
+      Catamaran.logger.smart_log_level.should > Catamaran::LogLevel::DEBUG
       Catamaran.logger.should_not_receive( :log )
-      Catamaran.logger.info( "And INFO log should NOT be received" )
+      Catamaran.logger.debug( "And INFO log should NOT be received" )
     end
 
     describe "#determine_path_and_opts_arguments" do
@@ -310,8 +310,9 @@ describe Catamaran do
 
     context "when the log level is specified, the default is no longer used" do
       it "should makeuse of the specified log level rather than the inherited one" do
-        Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::NOTICE
+        initial_log_level = Catamaran.logger.smart_log_level
         Catamaran.logger.log_level = Catamaran::LogLevel::ERROR
+        initial_log_level.should_not == Catamaran.logger.smart_log_level
         Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::ERROR
       end
     end
