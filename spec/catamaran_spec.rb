@@ -81,8 +81,8 @@ describe Catamaran do
     end
 
     describe "the Root Logger" do
-      it "should have a log level set to INFO" do
-        Catamaran.logger.log_level.should == Catamaran::LogLevel::INFO
+      it "should have a log level set to NOTICE" do
+        Catamaran.logger.log_level.should == Catamaran::LogLevel::NOTICE
       end
 
       it "should have a backtrace log level set to WARN" do
@@ -96,7 +96,7 @@ describe Catamaran do
       end
 
 
-      it "should have a log level set to INFO" do
+      it "should have an empty log level" do
         @non_root_logger.log_level.should be_nil
       end
 
@@ -104,8 +104,8 @@ describe Catamaran do
         @non_root_logger.backtrace_log_level.should be_nil
       end 
 
-      it "should have a smart log level set to INFO" do
-        @non_root_logger.smart_log_level.should == Catamaran::LogLevel::INFO
+      it "should have a smart log level set to NOTICE" do
+        @non_root_logger.smart_log_level.should == Catamaran::LogLevel::NOTICE
       end
 
       it "should have a smart backtrace log level set to WARN" do
@@ -126,12 +126,12 @@ describe Catamaran do
 
   context "after a (soft) reset" do
     describe "the Root Logger" do
-      it "should have a log level of INFO" do
+      it "should have a log level of NOTICE" do
         logger = Catamaran.logger
         logger.log_level = Catamaran::LogLevel::ERROR
         logger.log_level.should == Catamaran::LogLevel::ERROR
         Catamaran::Manager.reset
-        logger.log_level.should == Catamaran::LogLevel::INFO      
+        logger.log_level.should == Catamaran::LogLevel::NOTICE      
       end
 
       it "should have a backtrace log level of WARN" do
@@ -166,13 +166,13 @@ describe Catamaran do
   end
 
   context "after a hard reset" do
-    it "should have a default log level of INFO" do
+    it "should have a default log level of NOTICE" do
       logger = Catamaran.logger
-      logger.log_level.should == Catamaran::LogLevel::INFO
+      logger.log_level.should == Catamaran::LogLevel::NOTICE
       logger.log_level = Catamaran::LogLevel::ERROR
       logger.log_level.should == Catamaran::LogLevel::ERROR
       Catamaran::Manager.hard_reset
-      logger.log_level.should == Catamaran::LogLevel::INFO      
+      logger.log_level.should == Catamaran::LogLevel::NOTICE      
     end
 
     it "should reset the number of loggers to 1" do
@@ -259,9 +259,9 @@ describe Catamaran do
     end 
 
     it "should inherit the log level from the root logger as needed" do
-      Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
+      Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::NOTICE
       Catamaran.logger.com.mycompany.myrailsproject.app.models.User.log_level.should be_nil     
-      Catamaran.logger.com.mycompany.myrailsproject.app.models.User.smart_log_level.should == Catamaran::LogLevel::INFO
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.User.smart_log_level.should == Catamaran::LogLevel::NOTICE
     end
 
     it "should have a nil log_level unless explicitly set" do
@@ -273,17 +273,16 @@ describe Catamaran do
       Catamaran.logger.whatever.smart_log_level.should_not be_nil
     end    
 
-    it "should write the log message if the requested log does not have sufficient severity" do
-      Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
+    it "should write the log message if the requested log does have sufficient severity" do
+      Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::NOTICE
       Catamaran.logger.should_receive( :log ).once
-      Catamaran.logger.info( "Testing an INFO log" )
+      Catamaran.logger.notice( "A NOTICE log should be received" )
     end
 
     it "should NOT write the log message if the requested log does not have sufficient severity" do
-      Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
-      # DEBUG is disabled
+      Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::NOTICE
       Catamaran.logger.should_not_receive( :log )
-      Catamaran.logger.debug( "Testing a DEBUG log" )
+      Catamaran.logger.info( "And INFO log should NOT be received" )
     end
 
     describe "#determine_path_and_opts_arguments" do
@@ -311,10 +310,23 @@ describe Catamaran do
 
     context "when the log level is specified, the default is no longer used" do
       it "should makeuse of the specified log level rather than the inherited one" do
-        Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::INFO
+        Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::NOTICE
         Catamaran.logger.log_level = Catamaran::LogLevel::ERROR
         Catamaran.logger.smart_log_level.should == Catamaran::LogLevel::ERROR
       end
     end
   end # ends describe Catamaran::Logger do
+
+  describe Catamaran::LogLevel do
+    describe ".severity_to_s" do
+      it "should be able to convert a numeric log level into a string" do
+        Catamaran::LogLevel.severity_to_s( Catamaran::LogLevel::NOTICE ).should == 'NOTICE'
+      end
+
+      it "should be able to handle IO log levels" do
+        Catamaran::LogLevel.severity_to_s( Catamaran::LogLevel::IO_LESS_CRITICAL_THAN_INFO ).should == 'IO'
+        Catamaran::LogLevel.severity_to_s( Catamaran::LogLevel::IO_LESS_CRITICAL_THAN_DEBUG ).should == 'IO'
+      end
+    end
+  end
 end  # ends describe Catamaran do

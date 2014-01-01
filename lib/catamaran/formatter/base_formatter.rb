@@ -14,7 +14,7 @@ module Catamaran
 
         # TODO:  Abstract out the logger so that it's easy to use different formats
         # Implicit return
-        retval = sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", LogLevel.to_s( severity ), updated_path  )
+        retval = sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", LogLevel.severity_to_s( severity ), updated_path  )
       end
 
       def self.construct_backtrace_info( opts )

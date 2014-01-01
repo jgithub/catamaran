@@ -25,7 +25,8 @@ class FirstRubyDemo
   # LOGGER = Catamaran.logger.FirstRubyDemo
 
   def run
-    LOGGER.info( "Note that INFO messages are getting captured by default" )
+    LOGGER.notice( "Note that NOTICE messages are getting captured by default" ) if LOGGER.notice?
+    LOGGER.info( "Note that INFO messages are NOT getting captured by default" ) if LOGGER.info?
     LOGGER.debug( "Note that DEBUG messages are NOT getting captured by default" ) if LOGGER.debug?
   end
 end
@@ -35,7 +36,7 @@ FirstRubyDemo.new.run
 
 And the output
 
-     INFO pid-2729 [2013-12-23 19:35:35:732]                                   FirstRubyDemo - Note that INFO messages are getting captured by default
+    NOTICE pid-2729 [2013-12-23 19:35:35:732]                                   FirstRubyDemo - Note that NOTICE messages are getting captured by default
 
 
 Rails Quickstart
@@ -70,7 +71,7 @@ class SecondRubyDemo
   LOGGER = Catamaran.logger( { :class => name(), :file => __FILE__ } )
 
   def run
-    LOGGER.info( "Sample INFO statement", { :line => __LINE__, :method => 'run'} )
+    LOGGER.info( "Sample INFO statement", { :line => __LINE__, :method => 'run'} ) if LOGGER.info?
   end
 end 
 
@@ -173,21 +174,22 @@ end
 
 #### Summary
 
-* For log messages that are usually *disabled* in the production environment ( TRACE, DEBUG ), it's generally better to invoke the log only after confirming that the log level is enabled 
+* For log messages that are usually *disabled* in the production environment ( TRACE, DEBUG, INFO ), it's generally better to invoke the log only after confirming that the log level is enabled 
 
 ex:
 
 ```ruby
 LOGGER.trace "This is a TRACE log" if LOGGER.trace?
 LOGGER.debug "This is a DEBUG log" if LOGGER.debug?
+LOGGER.info "This is a INFO log" if LOGGER.info?
 ```
 
-* For log messages that are usually *enabled* in the production environment ( INFO, WARN, ERROR, SEVERE ), it's generally better to invoke the log WITHOUT first testing the log level
+* For log messages that are usually *enabled* in the production environment ( NOTICE, WARN, ERROR, SEVERE ), it's generally better to invoke the log WITHOUT first testing the log level
 
 ex:
 
 ```ruby
-LOGGER.info "This is a INFO log"
+LOGGER.notice "This is a NOTICE log"
 LOGGER.warn "This is a WARN log"
 LOGGER.error "This is a ERROR log" 
 ```

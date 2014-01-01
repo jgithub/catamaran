@@ -15,7 +15,7 @@ module Catamaran
         retval = @log_level
       elsif self.parent.nil?
         # No parent means this logger(self) is the root logger.  So use the default log level
-        retval = Catamaran::LogLevel::INFO
+        retval = Catamaran::LogLevel::NOTICE
       else
         recursive = opts[:recursive]
         if recursive == true 
@@ -201,6 +201,23 @@ module Catamaran
         log( LogLevel::INFO, msg, opts )
       end
     end 
+
+    ##
+    # Is notice-level logging currently enabled?
+
+    def notice?
+      if self.smart_log_level() <= LogLevel::NOTICE
+        true
+      else
+        false
+      end
+    end
+
+    def notice( msg, opts = nil )
+      if notice?
+        log( LogLevel::NOTICE, msg, opts )
+      end
+    end    
 
     ##
     # Is warn-level logging currently enabled?

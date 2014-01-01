@@ -4,22 +4,24 @@ module Catamaran
     # If that's too verbose, the level can be changed to IO_LESS_CRITICAL_THAN_DEBUG and logger.io messages won't be
     # visible unless the log level is set to TRACE.  
     # See development.rb for an example of this
-    IO_LESS_CRITICAL_THAN_DEBUG = 2080
-    IO_LESS_CRITICAL_THAN_INFO = 3080
+    IO_LESS_CRITICAL_THAN_DEBUG = 2780
+    IO_LESS_CRITICAL_THAN_INFO = 3780
+    IO_LESS_CRITICAL_THAN_NOTICE = 4780
 
     ALL = 100
 
     TRACE = 2000 
     DEBUG = 3000
     INFO = 4000
-
-    # Save room for Notice even Catamaran currently doesn't use it  http://www.faqs.org/rfcs/rfc3164.html
-    # NOTICE = 5000  
-    
+    # Adding notice per http://www.faqs.org/rfcs/rfc3164.html
+    NOTICE = 5000  
     WARN = 6000
     ERROR = 7000
-    SEVERE = 8000
-    FATAL = 9000
+    SEVERE = 8000  # versus critical
+    
+    # FATAL is currently unused.  In logger.rb you can see the fatal-related methods are commented out
+    FATAL = 9000   # versus alert
+                   # versus emergency
 
     IO = IO_LESS_CRITICAL_THAN_INFO
 
@@ -31,29 +33,31 @@ module Catamaran
     self.reset()
     
 
-    def self.to_s( log_level )
-      case log_level
+    def self.severity_to_s( severity )
+      case severity
       when TRACE
-        retval = 'TRACE'
+        'TRACE'
       when DEBUG
-        retval = 'DEBUG'
+        'DEBUG'
       when INFO
-        retval = 'INFO'
+        'INFO'
+      when NOTICE
+        'NOTICE'
       when WARN
-        retval = 'WARN'
+        'WARN'
       when ERROR
-        retval =  'ERROR'
+        'ERROR'
       when SEVERE
-        retval =  'SEVERE'
+        'SEVERE'
       when FATAL
-        retval =  'FATAL'
+        'FATAL'
       when IO_LESS_CRITICAL_THAN_INFO
-        retval =  'IO'
+        'IO'
       when IO_LESS_CRITICAL_THAN_DEBUG
-        retval =  'IO'
+        'IO'
+      else
+        'UNKNOWN'
       end
-
-      retval
     end   
 
     def self.log_level_io=( value )
