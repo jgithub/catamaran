@@ -6,7 +6,7 @@ Logging is a powerful and often undervalued tool in software development.  When 
 Gemfile
 -------
 
-    gem 'catamaran', '~> 0.7.0'
+    gem 'catamaran', '~> 0.8.0'
 
 Rails-related setup:
 
@@ -25,9 +25,9 @@ class FirstRubyDemo
   # LOGGER = Catamaran.logger.FirstRubyDemo
 
   def run
-    LOGGER.notice( "Note that NOTICE messages are getting captured by default" ) if LOGGER.notice?
-    LOGGER.info( "Note that INFO messages are NOT getting captured by default" ) if LOGGER.info?
-    LOGGER.debug( "Note that DEBUG messages are NOT getting captured by default" ) if LOGGER.debug?
+    LOGGER.notice( "Note that NOTICE messages are captured by default" ) if LOGGER.notice?
+    LOGGER.info( "Note that INFO messages are NOT captured by default" ) if LOGGER.info?
+    LOGGER.debug( "Note that DEBUG messages are NOT captured by default" ) if LOGGER.debug?
   end
 end
 
@@ -56,6 +56,12 @@ Load the `index` page and check out your `development.log` file
 
 ### Sample log entry (in your development.log file)
     DEBUG pid-86000 [2013-12-17 17:26:39:176] pany.myrailsapp.app.controllers.PagesController - Entering with params = {"controller"=>"pages", "action"=>"index"} (`/myrailsapp/app/controllers/pages_controller.rb:7`:in `index`)
+
+Log Levels
+----------
+Available log levels:  `TRACE` (verbose and trivial log messages), `DEBUG`, `INFO`, `NOTICE`, `WARN`, `ERROR`, `SEVERE` (logs related to very serious error conditions)
+
+The `NOTICE` log level severity is the default.   Any logs with `NOTICE` or higher severity will be captured.
 
 
 Other Ruby Examples
@@ -192,6 +198,7 @@ ex:
 LOGGER.notice "This is a NOTICE log"
 LOGGER.warn "This is a WARN log"
 LOGGER.error "This is a ERROR log" 
+LOGGER.severe "This is a SEVERE log" 
 ```
 
 ### NoCallerFormatter vs CallerFormatter
