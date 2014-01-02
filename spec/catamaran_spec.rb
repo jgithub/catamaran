@@ -308,6 +308,36 @@ describe Catamaran do
       Catamaran.logger.Company.Product.App.smart_log_level.should == Catamaran::LogLevel::INFO
     end
 
+    it "should memoize the log level of an ancestor as needed" do
+      Catamaran.logger.log_level = Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.instance_variable_get( :@memoized_log_level ).should be_nil
+      Catamaran.logger.should_receive( :log_level ).once.with( {:recursive=>true} ).and_return Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.smart_log_level.should == Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.instance_variable_get( :@memoized_log_level ).should == Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.smart_log_level.should == Catamaran::LogLevel::ERROR
+      Catamaran.logger.forget_memoizations
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.instance_variable_get( :@memoized_log_level ).should be_nil      
+      Catamaran.logger.should_receive( :log_level ).once.with( {:recursive=>true} ).and_return Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.smart_log_level.should == Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.instance_variable_get( :@memoized_log_level ).should == Catamaran::LogLevel::ERROR      
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.smart_log_level.should == Catamaran::LogLevel::ERROR
+    end
+
+    it "should memoize the backtrace log level of an ancestor as needed" do
+      Catamaran.logger.backtrace_log_level = Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.instance_variable_get( :@memoized_backtrace_log_level ).should be_nil
+      Catamaran.logger.should_receive( :backtrace_log_level ).once.with( {:recursive=>true} ).and_return Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.smart_backtrace_log_level.should == Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.instance_variable_get( :@memoized_backtrace_log_level ).should == Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.smart_backtrace_log_level.should == Catamaran::LogLevel::ERROR
+      Catamaran.logger.forget_memoizations
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.instance_variable_get( :@memoized_backtrace_log_level ).should be_nil      
+      Catamaran.logger.should_receive( :backtrace_log_level ).once.with( {:recursive=>true} ).and_return Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.smart_backtrace_log_level.should == Catamaran::LogLevel::ERROR
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.instance_variable_get( :@memoized_backtrace_log_level ).should == Catamaran::LogLevel::ERROR      
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.smart_backtrace_log_level.should == Catamaran::LogLevel::ERROR
+    end    
+
     context "when the log level is specified, the default is no longer used" do
       it "should makeuse of the specified log level rather than the inherited one" do
         initial_log_level = Catamaran.logger.smart_log_level

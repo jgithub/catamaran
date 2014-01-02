@@ -10,8 +10,8 @@ module Catamaran
     # The getter associated with retrieving the current log level for this logger.
     # Similar is the smart_log_level getter
 
-    def log_level( opts = {} )
-      if instance_variable_defined?( :@log_level ) && @log_level
+    def log_level( opts = nil )
+      if @log_level
         # Implicit return
         @log_level
       elsif self.parent.nil?
@@ -20,11 +20,11 @@ module Catamaran
         # Implicit return
         Catamaran::LogLevel::NOTICE
       else
-        recursive = ( opts[:recursive] == true || opts[:be_populated] == true )
+        recursive = ( opts && ( opts[:recursive] == true || opts[:be_populated] == true ) )
         if recursive == true 
 
           # Remember the log level we found so we don't have to recursively look for it ever time
-          if !instance_variable_defined?( :@memoized_log_level ) || @memoized_log_level.nil?
+          if @memoized_log_level.nil?
             @memoized_log_level = parent.log_level( opts ) if parent
           end
 
@@ -52,7 +52,7 @@ module Catamaran
 
     def log_level=( value )
       @log_level = value
-      remove_instance_variable( :@memoized_log_level ) if instance_variable_defined?( :@memoized_log_level )      
+      @memoized_log_level = nil      
     end
 
 
@@ -67,7 +67,7 @@ module Catamaran
 
 
     def backtrace_log_level( opts = {} )
-      if instance_variable_defined?( :@backtrace_log_level ) && @backtrace_log_level
+      if @backtrace_log_level
         retval = @backtrace_log_level
       elsif self.parent.nil?
         # No parent means this logger(self) is the root logger.  So use the default log level
@@ -77,7 +77,7 @@ module Catamaran
         if recursive == true 
 
           # Remember the log level we found so we don't have to recursively look for it ever time
-          if !instance_variable_defined?( :@memoized_backtrace_log_level ) || @memoized_backtrace_log_level.nil?
+          if @memoized_backtrace_log_level.nil?
             @memoized_backtrace_log_level = parent.backtrace_log_level( opts ) if parent
           end
 
@@ -105,7 +105,7 @@ module Catamaran
 
     def backtrace_log_level=( value )
       @backtrace_log_level = value
-      remove_instance_variable( :@memoized_backtrace_log_level ) if instance_variable_defined?( :@memoized_backtrace_log_level )      
+      @memoized_backtrace_log_level = nil  
     end
 
 
@@ -387,7 +387,9 @@ module Catamaran
     # Forget any cached memoization log levels within this logger or within sub-loggers of this logger
 
     def forget_memoizations
-      remove_instance_variable(:@memoized_log_level) if instance_variable_defined?( :@memoized_log_level )
+      @memoized_log_level = nil
+      @memoized_backtrace_log_level = nil
+
       @sub_loggers.values.each do |logger|
         logger.forget_memoizations()
       end
@@ -412,12 +414,15 @@ module Catamaran
 
     ##
     # I used to delete the root level logger, but now I reset it instead.  
-    # Among other reasons, the CatLogger constant now works
+    # Among other reasons, the CatLogger constant now works.
+    # Unless otherwise specified, a reset() is a soft reset by default.
 
     def reset( opts = {} )
-      remove_instance_variable(:@memoized_log_level) if instance_variable_defined?( :@memoized_log_level )      
-      remove_instance_variable(:@log_level) if instance_variable_defined?( :@log_level ) 
-      remove_instance_variable(:@backtrace_log_level) if instance_variable_defined?( :@backtrace_log_level )      
+
+      @memoized_log_level = nil
+      @log_level = nil 
+      @backtrace_log_level = nil
+      @memoized_backtrace_log_level = nil
 
       self.name = @initialized_name
       self.path = @initialized_path_so_far ? @initialized_path_so_far.dup : []
@@ -575,6 +580,12 @@ module Catamaran
 
       # Create the hash of sub_loggers as needed
       @sub_loggers ||= {}
+
+      # These will all be set to nil as part of the reset()
+      # @memoized_log_level = nil
+      # @log_level = nil
+      # @backtrace_log_level = nil
+      # @memoized_backtrace_log_level = nil
 
       reset()
 
