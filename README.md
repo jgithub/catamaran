@@ -6,7 +6,7 @@ Logging is a powerful and often undervalued tool in software development.  When 
 Gemfile
 -------
 
-    gem 'catamaran', '~> 0.9.0'
+    gem 'catamaran', '~> 0.9.1'
 
 Rails-related setup:
 
@@ -129,7 +129,7 @@ I'm looking for a logging utility that:
 * captures from where each log entry was generated
 * works equally well with classes that do and do *not* extend Rails base classes
 * supports the TRACE log level (or other log level less critical than DEBUG). 
-* is capable of capturing logs at different log level thresholds from different parts of the app simultaneously
+* is capable of capturing logs at different severity thresholds from different parts of the app simultaneously
 * readily works with Rails
 * http://stackoverflow.com/questions/462651/rails-logger-format-string-configuration
 * http://stackoverflow.com/questions/3654827/logging-in-rails-app
