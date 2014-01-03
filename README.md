@@ -55,11 +55,11 @@ Rails Quickstart
 ----------------
 
 ```ruby
-class PagesController < ApplicationController
-  LOGGER = Catamaran.logger.com.mytld.myrailsapp.app.controllers.PagesController
+class WidgetsController < ApplicationController
+  LOGGER = Catamaran.logger.com.mytld.myrailsapp.app.controllers.WidgetsController
 
   def index
-    LOGGER.debug "Entering with params = #{params}" if LOGGER.debug?       
+    LOGGER.debug "Handling a Widgets index request with params = #{params}" if LOGGER.debug?       
   end
 end
 ```
@@ -68,7 +68,7 @@ Load the `index` page and check out your `development.log` file
 
 ### Sample log entry (in your development.log file)
 
-    DEBUG pid-86000 [2013-12-17 17:26:39:176] ytld.myrailsapp.app.controllers.PagesController - Entering with params = {"controller"=>"pages", "action"=>"index"} (`/myrailsapp/app/controllers/pages_controller.rb:7`:in `index`)
+    DEBUG pid-86000 [2013-12-17 17:26:39:176] ld.myrailsapp.app.controllers.WidgetsController - "Handling a Widgets index request with params = {"controller"=>"widgets", "action"=>"index"} (`/myrailsapp/app/controllers/widgets_controller.rb:7`:in `index`)
 
 Log Levels
 ----------
@@ -135,6 +135,7 @@ I'm looking for a logging utility that:
 * http://stackoverflow.com/questions/3654827/logging-in-rails-app
 * http://stackoverflow.com/questions/11991967/rails-log-too-verbose
 * http://www.ietf.org/rfc/rfc3164.txt
+* http://logging.apache.org/log4j
 
 Performance Considerations
 --------------------------
@@ -278,6 +279,7 @@ Ideas around what's next
 * Log rotation
 * Heroku support (https://blog.heroku.com/archives/2013/7/15/logging-on-heroku)
 * Buffered file I/O considerations
+
 
 
 
