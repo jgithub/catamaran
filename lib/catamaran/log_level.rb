@@ -4,9 +4,10 @@ module Catamaran
     # If that's too verbose, the level can be changed to IO_LESS_CRITICAL_THAN_DEBUG and logger.io messages won't be
     # visible unless the log level is set to TRACE.  
     # See development.rb for an example of this
+    IO_LESS_CRITICAL_THAN_TRACE = 1780
     IO_LESS_CRITICAL_THAN_DEBUG = 2780
     IO_LESS_CRITICAL_THAN_INFO = 3780
-    IO_LESS_CRITICAL_THAN_NOTICE = 4780
+    
 
     ALL = 100
 
@@ -51,12 +52,12 @@ module Catamaran
         'SEVERE'
       when FATAL
         'FATAL'
+      when IO_LESS_CRITICAL_THAN_TRACE
+        'IO'              
       when IO_LESS_CRITICAL_THAN_INFO
         'IO'
       when IO_LESS_CRITICAL_THAN_DEBUG
-        'IO'
-      when IO_LESS_CRITICAL_THAN_NOTICE
-        'IO'        
+        'IO'  
       else
         # Unknown
         ''

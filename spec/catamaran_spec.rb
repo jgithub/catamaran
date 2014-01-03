@@ -355,9 +355,9 @@ describe Catamaran do
       end
 
       it "should be able to handle IO log levels" do
+        Catamaran::LogLevel.severity_to_s( Catamaran::LogLevel::IO_LESS_CRITICAL_THAN_TRACE ).should == 'IO'        
         Catamaran::LogLevel.severity_to_s( Catamaran::LogLevel::IO_LESS_CRITICAL_THAN_INFO ).should == 'IO'
         Catamaran::LogLevel.severity_to_s( Catamaran::LogLevel::IO_LESS_CRITICAL_THAN_DEBUG ).should == 'IO'
-        Catamaran::LogLevel.severity_to_s( Catamaran::LogLevel::IO_LESS_CRITICAL_THAN_NOTICE ).should == 'IO'
       end
     end
   end
