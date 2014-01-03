@@ -6,7 +6,7 @@ Logging is a powerful and often undervalued tool in software development.  When 
 Gemfile
 -------
 
-    gem 'catamaran', '~> 0.9.1'
+    gem 'catamaran', '~> 0.10.0'
 
 Rails-related setup:
 
@@ -35,6 +35,7 @@ class FirstRubyDemo
     LOGGER.warn( "WARN logs are captured by default" )
     LOGGER.error( "ERROR logs are captured by default" )
     LOGGER.severe( "SEVERE logs are captured by default" )
+    LOGGER.fatal( "FATAL logs are captured by default" )
   end
 end
 
@@ -48,6 +49,7 @@ NOTICE pid-23773 [2014-01-01 13:09:47:551]                     com.mytld.FirstRu
   WARN pid-23773 [2014-01-01 13:09:47:551]                     com.mytld.FirstRubyDemo - WARN logs are captured by default
  ERROR pid-23773 [2014-01-01 13:09:47:551]                     com.mytld.FirstRubyDemo - ERROR logs are captured by default
 SEVERE pid-23773 [2014-01-01 13:09:47:551]                     com.mytld.FirstRubyDemo - SEVERE logs are captured by default
+ FATAL pid-23773 [2014-01-01 13:09:47:551]                     com.mytld.FirstRubyDemo - FATAL logs are captured by default
 ```
 
 
@@ -129,13 +131,13 @@ I'm looking for a logging utility that:
 * captures from where each log entry was generated
 * works equally well with classes that do and do *not* extend Rails base classes
 * supports the TRACE log level (or other log level less critical than DEBUG). 
-* is capable of capturing logs at different severity thresholds from different parts of the app simultaneously
+* is capable of capturing logs at different severity thresholds from different parts of the app simultaneously (I always liked the Named Hierarchy and Level Inheritance aspects of log4j)
 * readily works with Rails
 * http://stackoverflow.com/questions/462651/rails-logger-format-string-configuration
 * http://stackoverflow.com/questions/3654827/logging-in-rails-app
 * http://stackoverflow.com/questions/11991967/rails-log-too-verbose
 * http://www.ietf.org/rfc/rfc3164.txt
-* http://logging.apache.org/log4j
+* http://logging.apache.org/log4j/1.2
 
 Performance Considerations
 --------------------------

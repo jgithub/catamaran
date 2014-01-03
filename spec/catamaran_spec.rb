@@ -273,6 +273,28 @@ describe Catamaran do
       Catamaran.logger.whatever.smart_log_level.should_not be_nil
     end    
 
+    it "should support the TRACE log severity and trace()" do
+      Catamaran.logger.log_level = Catamaran::LogLevel::TRACE
+      Catamaran.logger.should_receive( :log ).once
+      Catamaran.logger.trace( "A TRACE log should be received" )
+    end
+
+    it "should support the TRACE log severity and trace?()" do
+      Catamaran.logger.log_level = Catamaran::LogLevel::TRACE      
+      Catamaran.logger.trace?.should be_true
+    end
+
+    it "should support the FATAL log severity and fatal()" do
+      Catamaran.logger.smart_log_level.should < Catamaran::LogLevel::FATAL
+      Catamaran.logger.should_receive( :log ).once
+      Catamaran.logger.fatal( "A FATAL log should be received" )
+    end
+
+    it "should support the FATAL log severity and fatal?()" do
+      Catamaran.logger.smart_log_level.should < Catamaran::LogLevel::FATAL
+      Catamaran.logger.fatal?.should be_true
+    end    
+
     it "should write the log message if the requested log does have sufficient severity" do
       Catamaran.logger.smart_log_level.should <= Catamaran::LogLevel::NOTICE
       Catamaran.logger.should_receive( :log ).once

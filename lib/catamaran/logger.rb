@@ -284,19 +284,19 @@ module Catamaran
     ##
     # Is fatal-level logging currently enabled?
 
-    # def fatal?
-    #   if self.smart_log_level() <= LogLevel::FATAL
-    #     true
-    #   else
-    #     false
-    #   end
-    # end
+    def fatal?
+      if self.smart_log_level() <= LogLevel::FATAL
+        true
+      else
+        false
+      end
+    end
 
-    # def fatal( msg, opts = nil )
-    #   if fatal?
-    #     log( LogLevel::FATAL, msg, opts )
-    #   end
-    # end            
+    def fatal( msg, opts = nil )
+      if fatal?
+        log( LogLevel::FATAL, msg, opts )
+      end
+    end            
 
 
 
