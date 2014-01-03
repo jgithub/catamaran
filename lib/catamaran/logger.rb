@@ -293,7 +293,8 @@ module Catamaran
     end
 
     def fatal( msg, opts = nil )
-      if fatal?
+      # Duplicated the logic from fatal?() (rather than calling it directly) for performance considerations      
+      if self.log_level( { :be_populated => true } ) <= LogLevel::FATAL
         log( LogLevel::FATAL, msg, opts )
       end
     end            
