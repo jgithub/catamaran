@@ -148,7 +148,7 @@ module Catamaran
     end
 
     def trace( msg, opts = nil )
-      # Duplicated the logic from trace? for performance considerations          
+      # Duplicated the logic from trace?() (rather than calling it directly) for performance considerations          
       if self.log_level( { :be_populated => true } ) <= LogLevel::TRACE
         log( LogLevel::TRACE, msg, opts )
       end
@@ -166,7 +166,7 @@ module Catamaran
     end
 
     def debug( msg, opts = nil )
-       # Duplicated the logic from debug? for performance considerations            
+       # Duplicated the logic from debug?() (rather than calling it directly) for performance considerations            
       if self.log_level( { :be_populated => true } ) <= LogLevel::DEBUG
         log( LogLevel::DEBUG, msg, opts )
       end
@@ -185,7 +185,7 @@ module Catamaran
     end
 
     def io( msg, opts = nil )
-       # Duplicated the logic from io? for performance considerations      
+       # Duplicated the logic from io?() (rather than calling it directly) for performance considerations      
       if self.log_level( { :be_populated => true } ) <= LogLevel::IO
         log( LogLevel::IO, msg, opts )
       end
@@ -203,7 +203,7 @@ module Catamaran
     end
 
     def info( msg, opts = nil )
-       # Duplicated the logic from info? for performance considerations
+       # Duplicated the logic from info?() (rather than calling it directly) for performance considerations
       if self.log_level( { :be_populated => true } ) <= LogLevel::INFO
         log( LogLevel::INFO, msg, opts )
       end
@@ -221,7 +221,7 @@ module Catamaran
     end
 
     def notice( msg, opts = nil )
-      # Duplicated the logic from notice? for performance considerations
+      # Duplicated the logic from notice?() (rather than calling it directly) for performance considerations
       if self.log_level( { :be_populated => true } ) <= LogLevel::NOTICE
         log( LogLevel::NOTICE, msg, opts )
       end
@@ -239,7 +239,7 @@ module Catamaran
     end
 
     def warn( msg, opts = nil )
-      # Duplicated the logic from warn? for performance considerations
+      # Duplicated the logic from warn?() (rather than calling it directly) for performance considerations
       if self.log_level( { :be_populated => true } ) <= LogLevel::WARN
         log( LogLevel::WARN, msg, opts )
       end
@@ -257,7 +257,7 @@ module Catamaran
     end
 
     def error( msg, opts = nil )
-      # Duplicated the logic from error? for performance considerations
+      # Duplicated the logic from error?() (rather than calling it directly) for performance considerations
       if self.log_level( { :be_populated => true } ) <= LogLevel::ERROR
         log( LogLevel::ERROR, msg, opts )
       end
@@ -275,7 +275,7 @@ module Catamaran
     end
 
     def severe( msg, opts = nil )
-      # Duplicated the logic from severe? for performance considerations      
+      # Duplicated the logic from severe?() (rather than calling it directly) for performance considerations      
       if self.log_level( { :be_populated => true } ) <= LogLevel::SEVERE
         log( LogLevel::SEVERE, msg, opts )
       end
