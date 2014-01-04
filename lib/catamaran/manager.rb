@@ -6,19 +6,6 @@ module Catamaran
       attr_accessor :_stderr_flag;
       attr_accessor :_output_files; 
 
-
-      ##
-      # Class that's going to be performing the message formatting
-
-      def formatter_class
-        # The NoCallerFormatter class is the default formatter.  
-        @formatter_class || Catamaran::Formatter::NoCallerFormatter
-      end
-
-      def formatter_class=( value )
-        @formatter_class = value
-      end
-
       ##
       # The default delimiter
       #
