@@ -14,18 +14,17 @@ module Catamaran
 
         # TODO:  Abstract out the logger so that it's easy to use different formats
         # Implicit return
-        retval = sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", LogLevel.severity_to_s( severity ), updated_path  )
+        sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", LogLevel.severity_to_s( severity ), updated_path  )
       end
 
       def self.construct_backtrace_info( opts )
         if opts && opts[:backtrace] == true
-          msg = " from:\n#{caller(5).take(10).join("\n")}"
+          # Implicit return
+          " from:\n#{caller(5).take(10).join("\n")}"
         else
-          msg = ''
+          # Implicit return
+          ''
         end
-
-        # Implicit return
-        msg
       end
 
 
