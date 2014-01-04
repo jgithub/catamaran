@@ -125,44 +125,46 @@ describe Catamaran do
   end
 
   context "after a (soft) reset" do
-    describe "the Root Logger" do
-      it "should have a log level of NOTICE" do
-        logger = Catamaran.logger
-        logger.log_level = Catamaran::LogLevel::ERROR
+    context "the Root Logger" do
+      let(:logger){ Catamaran.logger }
+
+      before(:each){ logger.log_level = Catamaran::LogLevel::ERROR }
+
+      it "should have a log level of ERROR and a backtrace log level of WARN" do
         logger.log_level.should == Catamaran::LogLevel::ERROR
-        Catamaran::Manager.reset
-        logger.log_level.should == Catamaran::LogLevel::NOTICE      
+        logger.backtrace_log_level.should == Catamaran::LogLevel::WARN
       end
 
-      it "should have a backtrace log level of WARN" do
-        logger = Catamaran.logger
-        logger.backtrace_log_level = Catamaran::LogLevel::ERROR
-        logger.backtrace_log_level.should == Catamaran::LogLevel::ERROR
+      it "should have a log level of NOTICE and a backtrace log level of WARN" do
         Catamaran::Manager.reset
-        logger.backtrace_log_level.should == Catamaran::LogLevel::WARN      
-      end 
-    end   
+        logger.log_level.should == Catamaran::LogLevel::NOTICE
+        logger.backtrace_log_level.should == Catamaran::LogLevel::WARN
+      end
 
-    it "should have the same number of loggers" do
-      Catamaran.logger
-      Catamaran::Manager.num_loggers.should == 1
-      Catamaran.logger.com.mycompany.myrailsproject.app.models.User
-      Catamaran::Manager.num_loggers.should == 7 
-      Catamaran::Manager.reset
-      Catamaran::Manager.num_loggers.should == 7      
+      it "should have the same root logger object before and after the reset" do
+        before_logger = Catamaran.logger
+        Catamaran::Manager.reset
+        Catamaran.logger.object_id.should == before_logger.object_id
+      end
     end
 
-    it "should have the same root logger object before and after the reset" do
-      before_logger = Catamaran.logger
-      Catamaran::Manager.reset
-      Catamaran.logger.object_id.should == before_logger.object_id        
-    end
+    context "non-root loggers" do
+      let( :subloggers){ "com.mycompany.railsproject.app.models.User" }
+      let!(:rootlogger_count){ Catamaran.logger.num_loggers }
+      let( :total_loggers){ subloggers.split(".").count + rootlogger_count }
 
-    it "should reuse the same logger non-root logger instance" do
-      before_logger = Catamaran.logger.com.mycompany.myrailsproject.app.models.User
-      Catamaran::Manager.reset
-      before_logger.object_id.should == Catamaran.logger.com.mycompany.myrailsproject.app.models.User.object_id   
-    end      
+      it "should have the same number of loggers" do
+        Catamaran.logger.com.mycompany.myrailsproject.app.models.User
+        Catamaran::Manager.reset
+        Catamaran::Manager.num_loggers.should == total_loggers
+      end
+
+      it "should reuse the same logger non-root logger instance" do
+        before_logger = Catamaran.logger.com.mycompany.myrailsproject.app.models.User
+        Catamaran::Manager.reset
+        before_logger.object_id.should == Catamaran.logger.com.mycompany.myrailsproject.app.models.User.object_id
+      end
+    end
   end
 
   context "after a hard reset" do
