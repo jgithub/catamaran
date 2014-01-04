@@ -26,6 +26,21 @@ module Catamaran
 
     IO = IO_LESS_CRITICAL_THAN_INFO
 
+
+    SEVERITY_TO_STRING_MAP = {
+      TRACE => 'TRACE',
+      DEBUG => 'DEBUG',
+      INFO => 'INFO',
+      NOTICE => 'NOTICE',
+      WARN => 'WARN',
+      ERROR => 'ERROR',
+      SEVERE => 'SEVERE',
+      FATAL => 'FATAL',
+      IO_LESS_CRITICAL_THAN_TRACE => 'IO',
+      IO_LESS_CRITICAL_THAN_INFO => 'IO',
+      IO_LESS_CRITICAL_THAN_DEBUG => 'IO'
+    }
+
     def self.reset
       self.send( :remove_const, 'IO' ) if self.const_defined?( 'IO' )
       self.const_set( 'IO', IO_LESS_CRITICAL_THAN_INFO )            
@@ -35,34 +50,10 @@ module Catamaran
     
 
     def self.severity_to_s( severity )
-      case severity
-      when TRACE
-        'TRACE'
-      when DEBUG
-        'DEBUG'
-      when INFO
-        'INFO'
-      when NOTICE
-        'NOTICE'
-      when WARN
-        'WARN'
-      when ERROR
-        'ERROR'
-      when SEVERE
-        'SEVERE'
-      when FATAL
-        'FATAL'
-      when IO_LESS_CRITICAL_THAN_TRACE
-        'IO'              
-      when IO_LESS_CRITICAL_THAN_INFO
-        'IO'
-      when IO_LESS_CRITICAL_THAN_DEBUG
-        'IO'  
-      else
-        # Unknown
-        ''
-      end
-    end   
+      SEVERITY_TO_STRING_MAP[severity] || ''
+    end  
+
+
 
     def self.log_level_io=( value )
       self.send( :remove_const, 'IO' ) if self.const_defined?( 'IO' )
