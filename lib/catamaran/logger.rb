@@ -394,6 +394,7 @@ module Catamaran
     def forget_memoizations
       @memoized_log_level = nil
       @memoized_backtrace_log_level = nil
+      @memoized_delimiter = nil
 
       @sub_loggers.values.each do |logger|
         logger.forget_memoizations()
@@ -565,7 +566,7 @@ module Catamaran
 
     def _format_msg( severity, msg, opts )
       # Implicit return
-      Manager.formatter_class.construct_formatted_message( severity, self.path_to_s(), msg, opts )
+      Formatter.instance.construct_formatted_message( severity, self.path_to_s(), msg, opts )
     end
 
     ##

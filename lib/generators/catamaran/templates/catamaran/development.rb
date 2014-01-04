@@ -8,8 +8,8 @@ Catamaran.logger.log_level = Catamaran::LogLevel::DEBUG
 # If that's too verbose, uncomment this
 # Catamaran::LogLevel.log_level_io = Catamaran::LogLevel::IO_LESS_CRITICAL_THAN_DEBUG
 
-# The NoCallerFormatter is the default.  
-Catamaran::Manager.formatter_class = Catamaran::Formatter::CallerFormatter
+# There is a performance hit for using the caller, but it generates more detailed logs
+Catamaran::Manager.formatter_caller_enabled = true
 
 # Uncomment to enable Catamaran internal debugging
 # Catamaran::debugging = true

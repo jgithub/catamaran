@@ -242,16 +242,32 @@ describe Catamaran do
       end
     end
 
-     describe "#forget_memoizations" do
+    describe ".forget_memoizations" do
       it "should forget all the memoized log levels" do
         Catamaran.logger.log_level = Catamaran::LogLevel::ERROR
         Catamaran.logger.Test.smart_log_level.should == Catamaran::LogLevel::ERROR   
         Catamaran.logger.log_level = Catamaran::LogLevel::INFO   
         Catamaran.logger.Test.smart_log_level.should == Catamaran::LogLevel::ERROR  
-        Catamaran.logger.forget_memoizations
+        Catamaran::Manager.forget_memoizations
         Catamaran.logger.Test.smart_log_level.should == Catamaran::LogLevel::INFO  
       end
-    end   
+
+      it "should call forget_memoizations on the root logger" do
+        Catamaran.logger.log_level = Catamaran::LogLevel::ERROR
+        Catamaran.logger.Test.smart_log_level.should == Catamaran::LogLevel::ERROR   
+        Catamaran.logger.log_level = Catamaran::LogLevel::INFO   
+        Catamaran.logger.Test.smart_log_level.should == Catamaran::LogLevel::ERROR
+        Catamaran.logger.should_receive( :forget_memoizations ).once  
+        Catamaran::Manager.forget_memoizations
+      end      
+    end  
+
+    describe ".forget_cached_log_levels" do
+      it "should call forget_memoizations" do  
+        Catamaran::Manager.should_receive( :forget_memoizations )
+        Catamaran::Manager.forget_cached_log_levels 
+      end
+    end 
   end
 
   describe Catamaran::Logger do
@@ -307,6 +323,17 @@ describe Catamaran do
       Catamaran.logger.smart_log_level.should > Catamaran::LogLevel::DEBUG
       Catamaran.logger.should_not_receive( :log )
       Catamaran.logger.debug( "And INFO log should NOT be received" )
+    end
+
+    describe "#forget_memoizations" do
+      it "should forget all the memoized log levels" do
+        Catamaran.logger.log_level = Catamaran::LogLevel::ERROR
+        Catamaran.logger.Test.smart_log_level.should == Catamaran::LogLevel::ERROR   
+        Catamaran.logger.log_level = Catamaran::LogLevel::INFO   
+        Catamaran.logger.Test.smart_log_level.should == Catamaran::LogLevel::ERROR  
+        Catamaran.logger.forget_memoizations
+        Catamaran.logger.Test.smart_log_level.should == Catamaran::LogLevel::INFO  
+      end
     end
 
     describe "#determine_path_and_opts_arguments" do
