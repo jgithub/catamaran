@@ -125,6 +125,10 @@ module Catamaran
       self.root_logger().forget_memoizations()
     end
 
+    def self.forget_cached_log_levels
+      self.forget_memoizations
+    end
+
     ##
     # How many loggers is Catamaran currently aware of
 
