@@ -19,12 +19,12 @@ Ruby Quickstart
 ```ruby
 require 'catamaran'
 
-class FirstRubyDemo
+class WorkingWithCatamaran
   LOGGER = Catamaran.logger( "com.mytld.FirstRubyDemo" )
   # or equivalently: 
   # LOGGER = Catamaran.logger.com.mytld.FirstRubyDemo
 
-  def run
+  def demonstrating_log_levels
     # Disabled by default
     LOGGER.trace( "TRACE logs are NOT captured by default" ) if LOGGER.trace?    
     LOGGER.debug( "DEBUG logs are NOT captured by default" ) if LOGGER.debug?
@@ -32,26 +32,38 @@ class FirstRubyDemo
 
     # Enabled by default
     LOGGER.notice( "NOTICE logs are captured by default" )
-    LOGGER.warn( "WARN logs are captured by default" )
-    
-    Catamaran::Manager.formatter_caller_enabled = true
+    LOGGER.warn( "WARN logs are captured by default" )    
     LOGGER.error( "ERROR logs are captured by default" )
-    LOGGER.severe( "SEVERE logs are captured by default", { :file => __FILE__, :line => __LINE__, :method => 'run' }  )
-    LOGGER.fatal( "FATAL logs are captured by default", { :file => 'just_kidding.rb', :line => 123456789, :method => 'whatever' } )
+    LOGGER.severe( "SEVERE logs are captured by default" )
+    LOGGER.fatal( "FATAL logs are captured by default" )
+  end
+
+  def using_the_caller
+    # Enable the caller (it's disabled by default)
+    Catamaran::Manager.formatter_caller_enabled = true
+
+    LOGGER.notice( "The caller will append log location info to this message" )
+    LOGGER.notice( "If the user specifies the :file, :line, AND :method, the caller will NOT get invoked", { :file => __FILE__, :line => __LINE__, :method => 'run' } )
+    LOGGER.notice( "To prove the caller is not used, we can put dummy data in and see that it's being used instead", { :file => 'just_kidding.rb', :line => 123456789, :method => 'whatever' } )    
   end
 end
 
-FirstRubyDemo.new.run
+working_with_catamaran = WorkingWithCatamaran.new
+working_with_catamaran.demonstrating_log_levels
+working_with_catamaran.using_the_caller
 ```
 
 And the output
 
 ```
-NOTICE pid-28547 [2014-01-04 14:17:07:645]                         com.mytld.FirstRubyDemo - NOTICE logs are captured by default
-  WARN pid-28547 [2014-01-04 14:17:07:645]                         com.mytld.FirstRubyDemo - WARN logs are captured by default
- ERROR pid-28547 [2014-01-04 14:17:07:645]                         com.mytld.FirstRubyDemo - ERROR logs are captured by default (first_ruby_demo.rb:19:in `run')
-SEVERE pid-28547 [2014-01-04 14:17:07:645]                         com.mytld.FirstRubyDemo - SEVERE logs are captured by default (first_ruby_demo.rb:20:in `run')
- FATAL pid-28547 [2014-01-04 14:17:07:645]                         com.mytld.FirstRubyDemo - FATAL logs are captured by default (just_kidding.rb:123456789:in `whatever')
+NOTICE pid-28635 [2014-01-04 14:37:56:338]                         com.mytld.FirstRubyDemo - NOTICE logs are captured by default
+  WARN pid-28635 [2014-01-04 14:37:56:338]                         com.mytld.FirstRubyDemo - WARN logs are captured by default
+ ERROR pid-28635 [2014-01-04 14:37:56:338]                         com.mytld.FirstRubyDemo - ERROR logs are captured by default
+SEVERE pid-28635 [2014-01-04 14:37:56:338]                         com.mytld.FirstRubyDemo - SEVERE logs are captured by default
+ FATAL pid-28635 [2014-01-04 14:37:56:338]                         com.mytld.FirstRubyDemo - FATAL logs are captured by default
+NOTICE pid-28635 [2014-01-04 14:37:56:339]                         com.mytld.FirstRubyDemo - The caller will append log location info to this message (working_with_catamaran.rb:27:in `using_the_caller')
+NOTICE pid-28635 [2014-01-04 14:37:56:339]                         com.mytld.FirstRubyDemo - If the user specifies the :file, :line, AND :method, the caller will NOT get invoked (working_with_catamaran.rb:28:in `run')
+NOTICE pid-28635 [2014-01-04 14:37:56:339]                         com.mytld.FirstRubyDemo - To prove the caller is not used, we can put dummy data in and see that it's being used instead (just_kidding.rb:123456789:in `whatever')
 ```
 
 
