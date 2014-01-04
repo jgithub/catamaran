@@ -6,7 +6,7 @@ Logging is a powerful and often undervalued tool in software development.  When 
 Gemfile
 -------
 
-    gem 'catamaran', '~> 1.0.0'
+    gem 'catamaran', '~> 2.0.0'
 
 Rails-related setup:
 
@@ -121,49 +121,6 @@ Available log levels:  `TRACE` (verbose and trivial log messages), `DEBUG`, `INF
 The `NOTICE` log level severity is the default.   Any logs with `NOTICE` or higher severity will be captured.
 
 
-Other Ruby Examples
--------------------
-```ruby
-require 'catamaran'
-
-Catamaran.logger.log_level = Catamaran::LogLevel::INFO 
-Catamaran.logger.backtrace_log_level = Catamaran::LogLevel::ERROR 
-Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
-
-class SecondRubyDemo
-  LOGGER = Catamaran.logger( { :class => name(), :file => __FILE__ } )
-
-  def run
-    LOGGER.info( "Sample INFO statement", { :line => __LINE__, :method => 'run'} ) if LOGGER.info?
-  end
-end 
-
-class ThirdRubyDemo
-  LOGGER = Catamaran.logger( "com.mytld.ThirdRubyDemo", { :class => name(), :file => __FILE__ } )
-
-  def run
-    LOGGER.warn( "Sample WARN statement", { :line => __LINE__, :method => 'run' } )
-    LOGGER.warn( "Sample WARN statement with backtrace option", { :line => __LINE__, :method => 'run', :backtrace => true } )
-    LOGGER.error( "Sample ERROR statement with backtrace option", { :line => __LINE__, :method => 'run', :backtrace => true } )        
-  end
-end   
-
-SecondRubyDemo.new.run
-ThirdRubyDemo.new.run
-```
-
-And the output
-
-      INFO pid-5973 [2013-12-27 17:18:09:115]                                                 - Sample INFO statement (catamaran_ruby_demos.rb:12:in `SecondRubyDemo.run')
-      WARN pid-5973 [2013-12-27 17:18:09:115]                     com.mytld.ThirdRubyDemo - Sample WARN statement (catamaran_ruby_demos.rb:20:in `ThirdRubyDemo.run')
-      WARN pid-5973 [2013-12-27 17:18:09:115]                     com.mytld.ThirdRubyDemo - Sample WARN statement with backtrace option (catamaran_ruby_demos.rb:21:in `ThirdRubyDemo.run')
-     ERROR pid-5973 [2013-12-27 17:18:09:115]                     com.mytld.ThirdRubyDemo - Sample ERROR statement with backtrace option (catamaran_ruby_demos.rb:22:in `ThirdRubyDemo.run') from:
-    catamaran_ruby_demos.rb:22:in `run'
-    catamaran_ruby_demos.rb:27:in `<main>'
-
-
-
-
 Inspiration
 -----------
 I'm looking for a logging utility that:
@@ -190,11 +147,10 @@ require 'catamaran'
 require 'benchmark'
 
 Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::INFO 
-Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
 Catamaran::Manager.stderr = false
 
-class CatamaranPerformanceTest
-  LOGGER = Catamaran.logger( "CatamaranPerformanceTest" )
+class CatamaranConditionalLogStatementBenchmark
+  LOGGER = Catamaran.logger( "CatamaranConditionalLogStatementBenchmark" )
 
   # NOTE that the log level for this test is set to INFO, 
   # so 'warn' logs are enabled and 'debug' logs are disabled
@@ -260,7 +216,7 @@ LOGGER.severe "This is a SEVERE log"
 LOGGER.severe "This is a FATAL log" 
 ```
 
-### NoCallerFormatter vs CallerFormatter
+### Performance implications of using `caller`
 
 ```ruby
 require 'catamaran'
@@ -268,22 +224,22 @@ require 'benchmark'
 
 Catamaran::Manager.stderr = false
 
-class CatamaranPerformanceTest
-  LOGGER = Catamaran.logger( "CatamaranPerformanceTest" )
+class CatamaranCallerBenchmark
+  LOGGER = Catamaran.logger( "CatamaranCallerBenchmark" )
 
   n = 500000
   Benchmark.bm(7) do |x|
-    Catamaran::Manager.formatter_class = Catamaran::Formatter::NoCallerFormatter
+    Catamaran::Manager.formatter_caller_enabled = false
     
-    x.report("Using NoCallerFormatter") {
+    x.report("Catamaran::Manager.formatter_caller_enabled = false") {
       n.times do |i|
         LOGGER.error "This is a ERROR log"
       end
     }   
     
-    Catamaran::Manager.formatter_class = Catamaran::Formatter::CallerFormatter
+    Catamaran::Manager.formatter_caller_enabled = true
     
-    x.report("Using CallerFormatter") {
+    x.report("Catamaran::Manager.formatter_caller_enabled = true ") {
       n.times do |i|
         LOGGER.error "This is a ERROR log"
       end
@@ -292,24 +248,24 @@ class CatamaranPerformanceTest
 end
                          
 
-#                              user     system      total        real
-# Using NoCallerFormatter  6.850000   0.010000   6.860000 (  6.864649)
-# Using CallerFormatter   14.700000   0.150000  14.850000 ( 14.867592)
+#                                                          user     system      total        real
+# Catamaran::Manager.formatter_caller_enabled = false  6.710000   0.060000   6.770000 (  6.780703)
+# Catamaran::Manager.formatter_caller_enabled = true  13.940000   0.400000  14.340000 ( 14.345921)
 ```
 
 #### Summary
 
-`CallerFormatter` is slower but contains more details in the log statements as compared to `NoCallerFormatter`
+Using the `caller()` is slower but generate more details in the log statements
 
-##### Sample log from NoCallerFormatter
+##### Sample log from when formatter_caller_enabled is set to `false`
 
     WARN pid-4407 [2013-12-26 14:18:19:697]                                   FirstRubyDemo - Note that WARN messages are getting logged
 
-##### Sample log from CallerFormatter
+##### Sample log from when formatter_caller_enabled is set to `true`
 
     WARN pid-4410 [2013-12-26 14:18:38:276]                                   FirstRubyDemo - Note that WARN messages are getting logged (catamaran_ruby_demos.rb:12:in `run')
 
-Because of this performance difference, `NoCallerFormatter` is the Catamaran default.  Though `CallerFormatter` tends to be especially useful in the development and test environments when debugging problems during the course of functional testing.
+Because of this performance difference, the `caller()` is disabled by default.  Though enabling it tends to be especially useful in the development and test environments when debugging problems during the course of functional testing.
 
 ### Ruby Profiler
 ```ruby
@@ -317,10 +273,10 @@ require 'catamaran'
 require 'ruby-prof'
 
 
-class FirstRubyDemo
-  LOGGER = Catamaran.logger( "com.mycompany.FirstRubyDemo" )
+class CatamaranProfilerTest
+  LOGGER = Catamaran.logger( "com.mycompany.CatamaranProfilerTest" )
   # or equivalently: 
-  # LOGGER = Catamaran.logger.com.mycompany.FirstRubyDemo
+  # LOGGER = Catamaran.logger.com.mycompany.CatamaranProfilerTest
 
   def run
     # Disabled by default
@@ -356,185 +312,185 @@ printer.print(STDOUT)
 
 ```
 Thread ID: 2156341060
-Fiber ID: 2156559800
-Total Time: 0.802379
+Fiber ID: 2160270460
+Total Time: 0.8055
 Sort by: total_time
 
   %total   %self      total       self       wait      child            calls    Name
 --------------------------------------------------------------------------------
- 100.00%   0.01%      0.802      0.000      0.000      0.802                1      Global#[No method]
-                      0.802      0.003      0.000      0.800              1/1      Integer#times
+ 100.00%   0.01%      0.805      0.000      0.000      0.805                1      Global#[No method]
+                      0.805      0.003      0.000      0.803              1/1      Integer#times
                       0.000      0.000      0.000      0.000              1/2      Class#new
 --------------------------------------------------------------------------------
-                      0.802      0.003      0.000      0.800              1/1      Global#[No method]
-  99.99%   0.34%      0.802      0.003      0.000      0.800                1      Integer#times
-                      0.800      0.020      0.000      0.779        1000/1000      ProfilerTest#run
+                      0.805      0.003      0.000      0.803              1/1      Global#[No method]
+  99.99%   0.34%      0.805      0.003      0.000      0.803                1      Integer#times
+                      0.803      0.023      0.000      0.780        1000/1000      ProfilerTest#run
 --------------------------------------------------------------------------------
-                      0.800      0.020      0.000      0.779        1000/1000      Integer#times
-  99.65%   2.54%      0.800      0.020      0.000      0.779             1000      ProfilerTest#run
-                      0.149      0.007      0.000      0.142        1000/1000      Catamaran::Logger#warn
-                      0.148      0.011      0.000      0.137        1000/1000      Catamaran::Logger#fatal
-                      0.144      0.007      0.000      0.137        1000/1000      Catamaran::Logger#severe
-                      0.144      0.007      0.000      0.137        1000/1000      Catamaran::Logger#error
-                      0.135      0.006      0.000      0.129        1000/1000      Catamaran::Logger#notice
-                      0.021      0.006      0.000      0.015        1000/1000      Catamaran::Logger#trace?
-                      0.020      0.005      0.000      0.015        1000/1000      Catamaran::Logger#debug?
-                      0.019      0.005      0.000      0.014        1000/1000      Catamaran::Logger#info?
+                      0.803      0.023      0.000      0.780        1000/1000      Integer#times
+  99.65%   2.82%      0.803      0.023      0.000      0.780             1000      ProfilerTest#run
+                      0.152      0.007      0.000      0.145        1000/1000      Catamaran::Logger#error
+                      0.145      0.007      0.000      0.138        1000/1000      Catamaran::Logger#severe
+                      0.142      0.007      0.000      0.135        1000/1000      Catamaran::Logger#fatal
+                      0.141      0.007      0.000      0.134        1000/1000      Catamaran::Logger#warn
+                      0.141      0.006      0.000      0.134        1000/1000      Catamaran::Logger#notice
+                      0.020      0.006      0.000      0.014        1000/1000      Catamaran::Logger#trace?
+                      0.020      0.006      0.000      0.015        1000/1000      Catamaran::Logger#debug?
+                      0.020      0.005      0.000      0.014        1000/1000      Catamaran::Logger#info?
 --------------------------------------------------------------------------------
-                      0.115      0.006      0.000      0.109        1000/5000      Catamaran::Logger#notice
-                      0.122      0.006      0.000      0.116        1000/5000      Catamaran::Logger#error
-                      0.123      0.006      0.000      0.116        1000/5000      Catamaran::Logger#fatal
-                      0.123      0.006      0.000      0.116        1000/5000      Catamaran::Logger#severe
-                      0.128      0.006      0.000      0.122        1000/5000      Catamaran::Logger#warn
-  76.21%   3.95%      0.612      0.032      0.000      0.580             5000      Catamaran::Logger#log
-                      0.423      0.026      0.000      0.396        5000/5000      Catamaran::Logger#_format_msg
-                      0.157      0.044      0.000      0.113        5000/5000      <Class::Catamaran::Outputter>#write
+                      0.120      0.006      0.000      0.114        1000/5000      Catamaran::Logger#notice
+                      0.121      0.006      0.000      0.115        1000/5000      Catamaran::Logger#warn
+                      0.121      0.006      0.000      0.115        1000/5000      Catamaran::Logger#fatal
+                      0.124      0.006      0.000      0.118        1000/5000      Catamaran::Logger#severe
+                      0.131      0.006      0.000      0.124        1000/5000      Catamaran::Logger#error
+  76.65%   3.91%      0.617      0.031      0.000      0.586             5000      Catamaran::Logger#log
+                      0.427      0.027      0.000      0.401        5000/5000      Catamaran::Logger#_format_msg
+                      0.159      0.045      0.000      0.114        5000/5000      <Class::Catamaran::Outputter>#write
 --------------------------------------------------------------------------------
-                      0.423      0.026      0.000      0.396        5000/5000      Catamaran::Logger#log
-  52.66%   3.27%      0.423      0.026      0.000      0.396             5000      Catamaran::Logger#_format_msg
-                      0.334      0.045      0.000      0.290        5000/5000      Catamaran::Formatter#construct_formatted_message
-                      0.048      0.031      0.000      0.017        5000/5000      Catamaran::Logger#path_to_s
+                      0.427      0.027      0.000      0.401        5000/5000      Catamaran::Logger#log
+  53.06%   3.30%      0.427      0.027      0.000      0.401             5000      Catamaran::Logger#_format_msg
+                      0.338      0.047      0.000      0.291        5000/5000      Catamaran::Formatter#construct_formatted_message
+                      0.049      0.031      0.000      0.017        5000/5000      Catamaran::Logger#path_to_s
                       0.014      0.014      0.000      0.000        5000/5000      <Class::Catamaran::Formatter>#instance
 --------------------------------------------------------------------------------
-                      0.334      0.045      0.000      0.290        5000/5000      Catamaran::Logger#_format_msg
-  41.68%   5.55%      0.334      0.045      0.000      0.290             5000      Catamaran::Formatter#construct_formatted_message
-                      0.253      0.070      0.000      0.183        5000/5000      Catamaran::Formatter#base_construct_formatted_message
-                      0.021      0.021      0.000      0.000        5000/5000      Catamaran::Formatter#contruct_suffix_info
-                      0.016      0.016      0.000      0.000        5000/5000      Catamaran::Formatter#construct_backtrace_info
+                      0.338      0.047      0.000      0.291        5000/5000      Catamaran::Logger#_format_msg
+  42.01%   5.82%      0.338      0.047      0.000      0.291             5000      Catamaran::Formatter#construct_formatted_message
+                      0.249      0.076      0.000      0.173        5000/5000      Catamaran::Formatter#base_construct_formatted_message
+                      0.024      0.024      0.000      0.000        5000/5000      Catamaran::Formatter#contruct_suffix_info
+                      0.019      0.019      0.000      0.000        5000/5000      Catamaran::Formatter#construct_backtrace_info
 --------------------------------------------------------------------------------
-                      0.253      0.070      0.000      0.183        5000/5000      Catamaran::Formatter#construct_formatted_message
-  31.54%   8.69%      0.253      0.070      0.000      0.183             5000      Catamaran::Formatter#base_construct_formatted_message
-                      0.091      0.057      0.000      0.034        5000/5000      Time#strftime
-                      0.037      0.019      0.000      0.018        5000/5000      <Class::Time>#now
-                      0.023      0.023      0.000      0.000        5000/5000      Kernel#sprintf
+                      0.249      0.076      0.000      0.173        5000/5000      Catamaran::Formatter#construct_formatted_message
+  30.92%   9.49%      0.249      0.076      0.000      0.173             5000      Catamaran::Formatter#base_construct_formatted_message
+                      0.082      0.061      0.000      0.021        5000/5000      Time#strftime
+                      0.039      0.020      0.000      0.019        5000/5000      <Class::Time>#now
+                      0.024      0.024      0.000      0.000        5000/5000      Kernel#sprintf
                       0.013      0.013      0.000      0.000        5000/5000      <Class::Catamaran::LogLevel>#severity_to_s
-                      0.013      0.013      0.000      0.000        5000/5000      Fixnum#to_s
+                      0.009      0.009      0.000      0.000        5000/5000      Fixnum#to_s
                       0.006      0.006      0.000      0.000        5000/5000      <Module::Process>#pid
 --------------------------------------------------------------------------------
-                      0.157      0.044      0.000      0.113        5000/5000      Catamaran::Logger#log
-  19.61%   5.50%      0.157      0.044      0.000      0.113             5000      <Class::Catamaran::Outputter>#write
-                      0.082      0.019      0.000      0.064        5000/5000      IO#puts
+                      0.159      0.045      0.000      0.114        5000/5000      Catamaran::Logger#log
+  19.68%   5.53%      0.159      0.045      0.000      0.114             5000      <Class::Catamaran::Outputter>#write
+                      0.082      0.019      0.000      0.063        5000/5000      IO#puts
                       0.017      0.017      0.000      0.000        5000/5000      <Class::Catamaran::Manager>#stdout?
-                      0.014      0.014      0.000      0.000        5000/5000      <Class::Catamaran::Manager>#stderr?
+                      0.015      0.015      0.000      0.000        5000/5000      <Class::Catamaran::Manager>#stderr?
 --------------------------------------------------------------------------------
-                      0.149      0.007      0.000      0.142        1000/1000      ProfilerTest#run
-  18.55%   0.83%      0.149      0.007      0.000      0.142             1000      Catamaran::Logger#warn
-                      0.128      0.006      0.000      0.122        1000/5000      Catamaran::Logger#log
+                      0.152      0.007      0.000      0.145        1000/1000      ProfilerTest#run
+  18.84%   0.85%      0.152      0.007      0.000      0.145             1000      Catamaran::Logger#error
+                      0.131      0.006      0.000      0.124        1000/5000      Catamaran::Logger#log
                       0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#log_level
 --------------------------------------------------------------------------------
-                      0.148      0.011      0.000      0.137        1000/1000      ProfilerTest#run
-  18.43%   1.39%      0.148      0.011      0.000      0.137             1000      Catamaran::Logger#fatal
-                      0.123      0.006      0.000      0.116        1000/5000      Catamaran::Logger#log
+                      0.145      0.007      0.000      0.138        1000/1000      ProfilerTest#run
+  17.98%   0.83%      0.145      0.007      0.000      0.138             1000      Catamaran::Logger#severe
+                      0.124      0.006      0.000      0.118        1000/5000      Catamaran::Logger#log
                       0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#log_level
 --------------------------------------------------------------------------------
-                      0.144      0.007      0.000      0.137        1000/1000      ProfilerTest#run
-  17.91%   0.83%      0.144      0.007      0.000      0.137             1000      Catamaran::Logger#severe
-                      0.123      0.006      0.000      0.116        1000/5000      Catamaran::Logger#log
+                      0.142      0.007      0.000      0.135        1000/1000      ProfilerTest#run
+  17.57%   0.83%      0.142      0.007      0.000      0.135             1000      Catamaran::Logger#fatal
+                      0.121      0.006      0.000      0.115        1000/5000      Catamaran::Logger#log
                       0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#log_level
 --------------------------------------------------------------------------------
-                      0.144      0.007      0.000      0.137        1000/1000      ProfilerTest#run
-  17.91%   0.86%      0.144      0.007      0.000      0.137             1000      Catamaran::Logger#error
-                      0.122      0.006      0.000      0.116        1000/5000      Catamaran::Logger#log
-                      0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#log_level
+                      0.141      0.007      0.000      0.134        1000/1000      ProfilerTest#run
+  17.49%   0.82%      0.141      0.007      0.000      0.134             1000      Catamaran::Logger#warn
+                      0.121      0.006      0.000      0.115        1000/5000      Catamaran::Logger#log
+                      0.013      0.011      0.000      0.002        1000/8003      Catamaran::Logger#log_level
 --------------------------------------------------------------------------------
-                      0.135      0.006      0.000      0.129        1000/1000      ProfilerTest#run
-  16.88%   0.80%      0.135      0.006      0.000      0.129             1000      Catamaran::Logger#notice
-                      0.115      0.006      0.000      0.109        1000/5000      Catamaran::Logger#log
+                      0.141      0.006      0.000      0.134        1000/1000      ProfilerTest#run
+  17.47%   0.79%      0.141      0.006      0.000      0.134             1000      Catamaran::Logger#notice
+                      0.120      0.006      0.000      0.114        1000/5000      Catamaran::Logger#log
                       0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#log_level
 --------------------------------------------------------------------------------
                       0.000      0.000      0.000      0.000           3/8003      Catamaran::Logger#log_level
-                      0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#warn
-                      0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#notice
-                      0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#info?
+                      0.013      0.011      0.000      0.002        1000/8003      Catamaran::Logger#warn
                       0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#severe
                       0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#fatal
+                      0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#notice
                       0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#error
+                      0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#info?
+                      0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#trace?
                       0.015      0.012      0.000      0.002        1000/8003      Catamaran::Logger#debug?
-                      0.015      0.012      0.000      0.002        1000/8003      Catamaran::Logger#trace?
-  14.13%  11.98%      0.113      0.096      0.000      0.017             8003     *Catamaran::Logger#log_level
+  13.97%  11.89%      0.113      0.096      0.000      0.017             8003     *Catamaran::Logger#log_level
                       0.017      0.017      0.000      0.000      16001/16001      Kernel#nil?
                       0.000      0.000      0.000      0.000              4/4      NilClass#nil?
                       0.000      0.000      0.000      0.000           3/8003      Catamaran::Logger#log_level
 --------------------------------------------------------------------------------
-                      0.091      0.057      0.000      0.034        5000/5000      Catamaran::Formatter#base_construct_formatted_message
-  11.35%   7.13%      0.091      0.057      0.000      0.034             5000      Time#strftime
-                      0.028      0.028      0.000      0.000      10000/10000      Fixnum#divmod
+                      0.082      0.019      0.000      0.063        5000/5000      <Class::Catamaran::Outputter>#write
+  10.19%   2.32%      0.082      0.019      0.000      0.063             5000      IO#puts
+                      0.063      0.063      0.000      0.000      10000/10000      IO#write
+--------------------------------------------------------------------------------
+                      0.082      0.061      0.000      0.021        5000/5000      Catamaran::Formatter#base_construct_formatted_message
+  10.16%   7.52%      0.082      0.061      0.000      0.021             5000      Time#strftime
+                      0.015      0.015      0.000      0.000      10000/10000      Fixnum#divmod
                       0.006      0.006      0.000      0.000        5000/5000      Fixnum#%
 --------------------------------------------------------------------------------
-                      0.082      0.019      0.000      0.064        5000/5000      <Class::Catamaran::Outputter>#write
-  10.25%   2.31%      0.082      0.019      0.000      0.064             5000      IO#puts
-                      0.064      0.064      0.000      0.000      10000/10000      IO#write
+                      0.063      0.063      0.000      0.000      10000/10000      IO#puts
+   7.87%   7.87%      0.063      0.063      0.000      0.000            10000      IO#write
 --------------------------------------------------------------------------------
-                      0.064      0.064      0.000      0.000      10000/10000      IO#puts
-   7.94%   7.94%      0.064      0.064      0.000      0.000            10000      IO#write
---------------------------------------------------------------------------------
-                      0.048      0.031      0.000      0.017        5000/5000      Catamaran::Logger#_format_msg
-   5.97%   3.86%      0.048      0.031      0.000      0.017             5000      Catamaran::Logger#path_to_s
+                      0.049      0.031      0.000      0.017        5000/5000      Catamaran::Logger#_format_msg
+   6.07%   3.91%      0.049      0.031      0.000      0.017             5000      Catamaran::Logger#path_to_s
                       0.017      0.017      0.000      0.000        5000/5000      Array#join
                       0.000      0.000      0.000      0.000              1/1      <Class::Catamaran::Manager>#delimiter
 --------------------------------------------------------------------------------
-                      0.037      0.019      0.000      0.018        5000/5000      Catamaran::Formatter#base_construct_formatted_message
-   4.63%   2.33%      0.037      0.019      0.000      0.018             5000      <Class::Time>#now
-                      0.018      0.013      0.000      0.005        5000/5000      Time#initialize
+                      0.039      0.020      0.000      0.019        5000/5000      Catamaran::Formatter#base_construct_formatted_message
+   4.80%   2.42%      0.039      0.020      0.000      0.019             5000      <Class::Time>#now
+                      0.019      0.013      0.000      0.006        5000/5000      Time#initialize
 --------------------------------------------------------------------------------
-                      0.028      0.028      0.000      0.000      10000/10000      Time#strftime
-   3.49%   3.49%      0.028      0.028      0.000      0.000            10000      Fixnum#divmod
+                      0.024      0.024      0.000      0.000        5000/5000      Catamaran::Formatter#base_construct_formatted_message
+   2.96%   2.96%      0.024      0.024      0.000      0.000             5000      Kernel#sprintf
 --------------------------------------------------------------------------------
-                      0.023      0.023      0.000      0.000        5000/5000      Catamaran::Formatter#base_construct_formatted_message
-   2.87%   2.87%      0.023      0.023      0.000      0.000             5000      Kernel#sprintf
+                      0.024      0.024      0.000      0.000        5000/5000      Catamaran::Formatter#construct_formatted_message
+   2.95%   2.95%      0.024      0.024      0.000      0.000             5000      Catamaran::Formatter#contruct_suffix_info
 --------------------------------------------------------------------------------
-                      0.021      0.021      0.000      0.000        5000/5000      Catamaran::Formatter#construct_formatted_message
-   2.62%   2.62%      0.021      0.021      0.000      0.000             5000      Catamaran::Formatter#contruct_suffix_info
---------------------------------------------------------------------------------
-                      0.021      0.006      0.000      0.015        1000/1000      ProfilerTest#run
-   2.57%   0.75%      0.021      0.006      0.000      0.015             1000      Catamaran::Logger#trace?
-                      0.015      0.012      0.000      0.002        1000/8003      Catamaran::Logger#log_level
---------------------------------------------------------------------------------
-                      0.020      0.005      0.000      0.015        1000/1000      ProfilerTest#run
-   2.46%   0.66%      0.020      0.005      0.000      0.015             1000      Catamaran::Logger#debug?
-                      0.015      0.012      0.000      0.002        1000/8003      Catamaran::Logger#log_level
---------------------------------------------------------------------------------
-                      0.019      0.005      0.000      0.014        1000/1000      ProfilerTest#run
-   2.40%   0.65%      0.019      0.005      0.000      0.014             1000      Catamaran::Logger#info?
+                      0.020      0.006      0.000      0.014        1000/1000      ProfilerTest#run
+   2.52%   0.73%      0.020      0.006      0.000      0.014             1000      Catamaran::Logger#trace?
                       0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#log_level
 --------------------------------------------------------------------------------
-                      0.018      0.013      0.000      0.005        5000/5000      <Class::Time>#now
-   2.30%   1.62%      0.018      0.013      0.000      0.005             5000      Time#initialize
-                      0.005      0.005      0.000      0.000        5000/5000      Fixnum#+
+                      0.020      0.006      0.000      0.015        1000/1000      ProfilerTest#run
+   2.51%   0.69%      0.020      0.006      0.000      0.015             1000      Catamaran::Logger#debug?
+                      0.015      0.012      0.000      0.002        1000/8003      Catamaran::Logger#log_level
 --------------------------------------------------------------------------------
-                      0.017      0.017      0.000      0.000      16001/16001      Catamaran::Logger#log_level
-   2.14%   2.14%      0.017      0.017      0.000      0.000            16001      Kernel#nil?
+                      0.020      0.005      0.000      0.014        1000/1000      ProfilerTest#run
+   2.45%   0.67%      0.020      0.005      0.000      0.014             1000      Catamaran::Logger#info?
+                      0.014      0.012      0.000      0.002        1000/8003      Catamaran::Logger#log_level
+--------------------------------------------------------------------------------
+                      0.019      0.013      0.000      0.006        5000/5000      <Class::Time>#now
+   2.38%   1.66%      0.019      0.013      0.000      0.006             5000      Time#initialize
+                      0.006      0.006      0.000      0.000        5000/5000      Fixnum#+
+--------------------------------------------------------------------------------
+                      0.019      0.019      0.000      0.000        5000/5000      Catamaran::Formatter#construct_formatted_message
+   2.32%   2.32%      0.019      0.019      0.000      0.000             5000      Catamaran::Formatter#construct_backtrace_info
 --------------------------------------------------------------------------------
                       0.017      0.017      0.000      0.000        5000/5000      Catamaran::Logger#path_to_s
-   2.11%   2.11%      0.017      0.017      0.000      0.000             5000      Array#join
+   2.16%   2.16%      0.017      0.017      0.000      0.000             5000      Array#join
 --------------------------------------------------------------------------------
                       0.017      0.017      0.000      0.000        5000/5000      <Class::Catamaran::Outputter>#write
-   2.07%   2.07%      0.017      0.017      0.000      0.000             5000      <Class::Catamaran::Manager>#stdout?
+   2.11%   2.11%      0.017      0.017      0.000      0.000             5000      <Class::Catamaran::Manager>#stdout?
 --------------------------------------------------------------------------------
-                      0.016      0.016      0.000      0.000        5000/5000      Catamaran::Formatter#construct_formatted_message
-   1.96%   1.96%      0.016      0.016      0.000      0.000             5000      Catamaran::Formatter#construct_backtrace_info
+                      0.017      0.017      0.000      0.000      16001/16001      Catamaran::Logger#log_level
+   2.07%   2.07%      0.017      0.017      0.000      0.000            16001      Kernel#nil?
 --------------------------------------------------------------------------------
-                      0.014      0.014      0.000      0.000        5000/5000      <Class::Catamaran::Outputter>#write
-   1.79%   1.79%      0.014      0.014      0.000      0.000             5000      <Class::Catamaran::Manager>#stderr?
+                      0.015      0.015      0.000      0.000      10000/10000      Time#strftime
+   1.88%   1.88%      0.015      0.015      0.000      0.000            10000      Fixnum#divmod
+--------------------------------------------------------------------------------
+                      0.015      0.015      0.000      0.000        5000/5000      <Class::Catamaran::Outputter>#write
+   1.85%   1.85%      0.015      0.015      0.000      0.000             5000      <Class::Catamaran::Manager>#stderr?
 --------------------------------------------------------------------------------
                       0.014      0.014      0.000      0.000        5000/5000      Catamaran::Logger#_format_msg
-   1.74%   1.73%      0.014      0.014      0.000      0.000             5000      <Class::Catamaran::Formatter>#instance
+   1.68%   1.68%      0.014      0.014      0.000      0.000             5000      <Class::Catamaran::Formatter>#instance
                       0.000      0.000      0.000      0.000              1/2      Class#new
 --------------------------------------------------------------------------------
                       0.013      0.013      0.000      0.000        5000/5000      Catamaran::Formatter#base_construct_formatted_message
-   1.63%   1.63%      0.013      0.013      0.000      0.000             5000      <Class::Catamaran::LogLevel>#severity_to_s
+   1.65%   1.65%      0.013      0.013      0.000      0.000             5000      <Class::Catamaran::LogLevel>#severity_to_s
 --------------------------------------------------------------------------------
-                      0.013      0.013      0.000      0.000        5000/5000      Catamaran::Formatter#base_construct_formatted_message
-   1.58%   1.58%      0.013      0.013      0.000      0.000             5000      Fixnum#to_s
+                      0.009      0.009      0.000      0.000        5000/5000      Catamaran::Formatter#base_construct_formatted_message
+   1.08%   1.08%      0.009      0.009      0.000      0.000             5000      Fixnum#to_s
 --------------------------------------------------------------------------------
                       0.006      0.006      0.000      0.000        5000/5000      Catamaran::Formatter#base_construct_formatted_message
-   0.80%   0.80%      0.006      0.006      0.000      0.000             5000      <Module::Process>#pid
+   0.77%   0.77%      0.006      0.006      0.000      0.000             5000      <Module::Process>#pid
 --------------------------------------------------------------------------------
                       0.006      0.006      0.000      0.000        5000/5000      Time#strftime
-   0.73%   0.73%      0.006      0.006      0.000      0.000             5000      Fixnum#%
+   0.76%   0.76%      0.006      0.006      0.000      0.000             5000      Fixnum#%
 --------------------------------------------------------------------------------
-                      0.005      0.005      0.000      0.000        5000/5000      Time#initialize
-   0.68%   0.68%      0.005      0.005      0.000      0.000             5000      Fixnum#+
+                      0.006      0.006      0.000      0.000        5000/5000      Time#initialize
+   0.72%   0.72%      0.006      0.006      0.000      0.000             5000      Fixnum#+
 --------------------------------------------------------------------------------
                       0.000      0.000      0.000      0.000              1/2      Global#[No method]
                       0.000      0.000      0.000      0.000              1/2      <Class::Catamaran::Formatter>#instance
@@ -545,11 +501,11 @@ Sort by: total_time
                       0.000      0.000      0.000      0.000              4/4      Catamaran::Logger#log_level
    0.00%   0.00%      0.000      0.000      0.000      0.000                4      NilClass#nil?
 --------------------------------------------------------------------------------
-                      0.000      0.000      0.000      0.000              1/1      Class#new
-   0.00%   0.00%      0.000      0.000      0.000      0.000                1      Catamaran::Formatter#initialize
---------------------------------------------------------------------------------
                       0.000      0.000      0.000      0.000              1/1      Catamaran::Logger#path_to_s
    0.00%   0.00%      0.000      0.000      0.000      0.000                1      <Class::Catamaran::Manager>#delimiter
+--------------------------------------------------------------------------------
+                      0.000      0.000      0.000      0.000              1/1      Class#new
+   0.00%   0.00%      0.000      0.000      0.000      0.000                1      Catamaran::Formatter#initialize
 --------------------------------------------------------------------------------
                       0.000      0.000      0.000      0.000              1/1      Class#new
    0.00%   0.00%      0.000      0.000      0.000      0.000                1      BasicObject#initialize
@@ -571,7 +527,6 @@ Ideas around what's next
 * Log rotation
 * Heroku support (https://blog.heroku.com/archives/2013/7/15/logging-on-heroku)
 * Buffered file I/O considerations
-* Revisit how the formatters work
 
 
 
