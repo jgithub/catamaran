@@ -17,12 +17,11 @@ Now modify `config/initializers/catamaran/development.rb` as needed
 Ruby Quickstart
 ---------------
 ```ruby
-require 'catamaran'
 
 class WorkingWithCatamaran
-  LOGGER = Catamaran.logger( "com.mytld.FirstRubyDemo" )
+  LOGGER = Catamaran.logger( "com.mytld.WorkingWithCatamaran" )
   # or equivalently: 
-  # LOGGER = Catamaran.logger.com.mytld.FirstRubyDemo
+  # LOGGER = Catamaran.logger.com.mytld.WorkingWithCatamaran
 
   def demonstrating_log_levels
     # Disabled by default
@@ -45,25 +44,54 @@ class WorkingWithCatamaran
     LOGGER.notice( "The caller will append log location info to this message" )
     LOGGER.notice( "If the user specifies the :file, :line, AND :method, the caller will NOT get invoked", { :file => __FILE__, :line => __LINE__, :method => 'run' } )
     LOGGER.notice( "To prove the caller is not used, we can put dummy data in and see that it's being used instead", { :file => 'just_kidding.rb', :line => 123456789, :method => 'whatever' } )    
+  
+    # Turn it back off
+    Catamaran::Manager.formatter_caller_enabled = false
+  end
+
+  def changing_the_log_level
+    # Note that the log level can be changed
+    Catamaran.logger.log_level = Catamaran::LogLevel::DEBUG
+    Catamaran::Manager.forget_cached_log_levels()
+
+    LOGGER.trace( "TRACE logs are STILL NOT captured" ) if LOGGER.trace?    
+    LOGGER.debug( "Now DEBUG messages should show up" ) if LOGGER.debug?
+  end
+
+  def displaying_backtrace_information
+    Catamaran.logger.log_level = Catamaran::LogLevel::NOTICE
+    Catamaran.logger.backtrace_log_level = Catamaran::LogLevel::ERROR 
+    Catamaran::Manager.forget_cached_log_levels()
+
+    LOGGER.debug( "Sample DEBUG statement with backtrace requested", { :backtrace => true } )
+    LOGGER.warn( "Sample WARN statement with backtrace requested", { :backtrace => true } )
+    LOGGER.error( "Sample ERROR statement with backtrace requested", { :backtrace => true } )
   end
 end
 
 working_with_catamaran = WorkingWithCatamaran.new
 working_with_catamaran.demonstrating_log_levels
 working_with_catamaran.using_the_caller
+working_with_catamaran.changing_the_log_level
+working_with_catamaran.displaying_backtrace_information
 ```
 
 And the output
 
 ```
-NOTICE pid-28635 [2014-01-04 14:37:56:338]                         com.mytld.FirstRubyDemo - NOTICE logs are captured by default
-  WARN pid-28635 [2014-01-04 14:37:56:338]                         com.mytld.FirstRubyDemo - WARN logs are captured by default
- ERROR pid-28635 [2014-01-04 14:37:56:338]                         com.mytld.FirstRubyDemo - ERROR logs are captured by default
-SEVERE pid-28635 [2014-01-04 14:37:56:338]                         com.mytld.FirstRubyDemo - SEVERE logs are captured by default
- FATAL pid-28635 [2014-01-04 14:37:56:338]                         com.mytld.FirstRubyDemo - FATAL logs are captured by default
-NOTICE pid-28635 [2014-01-04 14:37:56:339]                         com.mytld.FirstRubyDemo - The caller will append log location info to this message (working_with_catamaran.rb:27:in `using_the_caller')
-NOTICE pid-28635 [2014-01-04 14:37:56:339]                         com.mytld.FirstRubyDemo - If the user specifies the :file, :line, AND :method, the caller will NOT get invoked (working_with_catamaran.rb:28:in `run')
-NOTICE pid-28635 [2014-01-04 14:37:56:339]                         com.mytld.FirstRubyDemo - To prove the caller is not used, we can put dummy data in and see that it's being used instead (just_kidding.rb:123456789:in `whatever')
+NOTICE pid-28671 [2014-01-04 14:55:57:433]                  com.mytld.WorkingWithCatamaran - NOTICE logs are captured by default
+  WARN pid-28671 [2014-01-04 14:55:57:434]                  com.mytld.WorkingWithCatamaran - WARN logs are captured by default
+ ERROR pid-28671 [2014-01-04 14:55:57:434]                  com.mytld.WorkingWithCatamaran - ERROR logs are captured by default
+SEVERE pid-28671 [2014-01-04 14:55:57:434]                  com.mytld.WorkingWithCatamaran - SEVERE logs are captured by default
+ FATAL pid-28671 [2014-01-04 14:55:57:434]                  com.mytld.WorkingWithCatamaran - FATAL logs are captured by default
+NOTICE pid-28671 [2014-01-04 14:55:57:434]                  com.mytld.WorkingWithCatamaran - The caller will append log location info to this message (working_with_catamaran.rb:27:in `using_the_caller')
+NOTICE pid-28671 [2014-01-04 14:55:57:434]                  com.mytld.WorkingWithCatamaran - If the user specifies the :file, :line, AND :method, the caller will NOT get invoked (working_with_catamaran.rb:28:in `run')
+NOTICE pid-28671 [2014-01-04 14:55:57:434]                  com.mytld.WorkingWithCatamaran - To prove the caller is not used, we can put dummy data in and see that it's being used instead (just_kidding.rb:123456789:in `whatever')
+ DEBUG pid-28671 [2014-01-04 14:55:57:434]                  com.mytld.WorkingWithCatamaran - Now DEBUG messages should show up
+  WARN pid-28671 [2014-01-04 14:55:57:434]                  com.mytld.WorkingWithCatamaran - Sample WARN statement with backtrace requested
+ ERROR pid-28671 [2014-01-04 14:55:57:434]                  com.mytld.WorkingWithCatamaran - Sample ERROR statement with backtrace requested from:
+working_with_catamaran.rb:51:in `displaying_backtrace_information'
+working_with_catamaran.rb:59:in `<main>'
 ```
 
 
