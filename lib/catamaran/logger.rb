@@ -394,6 +394,7 @@ module Catamaran
     def forget_memoizations
       @memoized_log_level = nil
       @memoized_backtrace_log_level = nil
+      @memoized_delimiter = nil
 
       @sub_loggers.values.each do |logger|
         logger.forget_memoizations()
