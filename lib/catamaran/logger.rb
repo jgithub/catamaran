@@ -374,10 +374,14 @@ module Catamaran
     # Human-readable path
 
     def path_to_s
+      unless @memoized_delimiter
+        @memoized_delimiter = Catamaran::Manager.delimiter
+      end
+
       _path = self.path
       if _path
         # Implicit return
-        _path.join( Catamaran::Manager.delimiter )
+        _path.join( @memoized_delimiter )
       else
         # Implicit return
         nil
@@ -424,6 +428,7 @@ module Catamaran
       @log_level = nil 
       @backtrace_log_level = nil
       @memoized_backtrace_log_level = nil
+      @memoized_delimiter = nil
 
       self.name = @initialized_name
       self.path = @initialized_path_so_far ? @initialized_path_so_far.dup : []
