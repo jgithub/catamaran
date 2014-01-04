@@ -32,6 +32,15 @@ module Catamaran
     end
 
 
+    def self.formatter_caller_enabled=( boolean_value )
+      Catamaran::Formatter.instance.caller_enabled = boolean_value
+    end
+
+    def self.formatter_caller_enabled
+      # Implicit return
+      Catamaran::Formatter.instance.caller_enabled
+    end    
+
 
 
     ##

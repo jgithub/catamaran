@@ -1,11 +1,9 @@
+require 'singleton'
 require 'catamaran/logger'
 require 'catamaran/manager'
-require 'catamaran/formatter/base_formatter'
-require 'catamaran/formatter/caller_formatter'
-require 'catamaran/formatter/no_caller_formatter'
+require 'catamaran/formatter'
 require 'catamaran/outputter'
 require 'catamaran/output_file'
-
 require 'catamaran/log_level'
 require 'catamaran/version'
 
