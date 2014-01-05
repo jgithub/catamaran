@@ -538,7 +538,7 @@ module Catamaran
       end
 
       if opts && opts[:backtrace] == true
-        _smart_backtrace_log_level = self.smart_backtrace_log_level()
+        _smart_backtrace_log_level = self.backtrace_log_level( { :recursive => true } )
 
         # If the specified log message has a level that's 
         # greater than or equal to the current backtrace_log_level
