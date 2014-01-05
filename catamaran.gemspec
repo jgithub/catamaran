@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.description      = "A logging utility"
   s.homepage         = "http://github.com/jgithub/catamaran"
   s.files            = `git ls-files`.split("\n")
+  s.licenses         = ['MIT']
 end
 
 
