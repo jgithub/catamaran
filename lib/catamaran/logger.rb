@@ -566,7 +566,7 @@ module Catamaran
 
     def _format_msg( severity, msg, opts )
       # Implicit return
-      Formatter.instance.construct_formatted_message( severity, self.path_to_s(), msg, opts )
+      Formatter.construct_formatted_message( severity, self.path_to_s(), msg, opts )
     end
 
     ##

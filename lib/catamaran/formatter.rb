@@ -1,24 +1,21 @@
 module Catamaran
-  class Formatter
-    include Singleton
+  class Formatter   
+    # Using caller() in the log messages is DISABLED by default
+    @@caller_enabled = false
 
-    def self.instance
-      @@instance ||= new
-    end    
-
-    def caller_enabled=( boolean_value )
-      @caller_enabled = boolean_value
+    def self.caller_enabled=( boolean_value )
+      @@caller_enabled = boolean_value
     end
 
-    def caller_enabled
-      @caller_enabled
+    def self.caller_enabled
+      @@caller_enabled
     end    
 
     ##
     # Construct a properly formatted log message based
 
 
-    def construct_formatted_message( severity, path, msg, opts )
+    def self.construct_formatted_message( severity, path, msg, opts )
       msg = sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", 
                     LogLevel.severity_to_s( severity ), 
                     ( path.length > 47 ) ? path.dup[-47,47] : path  )
@@ -86,14 +83,6 @@ module Catamaran
       # Implicit return
       msg
     end
-
-    private
-
-    def initialize
-      # Using caller() in the log messages is DISABLED by default
-      @caller_enabled = false
-    end    
-
   end
 end
       
