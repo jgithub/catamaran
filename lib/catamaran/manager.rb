@@ -44,8 +44,10 @@ module Catamaran
       root_logger.reset( opts ) if root_logger
 
       # Also reset the default log level
-      Catamaran::LogLevel::reset
+      Catamaran::LogLevel.reset
       
+      Catamaran::Outputter.reset
+
       # Resetting Catamaran probably should not reset the output settings
       # self.send( :_stdout_flag=, nil )
       # self.send( :_stderr_flag=, nil )

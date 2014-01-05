@@ -1,15 +1,18 @@
 module Catamaran
   class Outputter
-
-    ##
-    # Write the log message to the appropriate location.  Currently that could mean stdout, stderr, or output files.
+    @@stdout = nil
+    @@stderr = nil
 
     def self.write( formatted_msg )
-      if Manager.stdout?
+      @@stdout = Manager.stdout? if @@stdout.nil?
+      @@stderr = Manager.stderr? if @@stderr.nil?
+
+
+      if @@stdout
         $stdout.puts( formatted_msg )
       end
 
-      if Manager.stderr?
+      if @@stderr
         $stderr.puts( formatted_msg )
       end 
 
@@ -21,7 +24,11 @@ module Catamaran
           $stderr.puts( "Catamaran is unable to write to logfile: #{output_file}" )
         end
       end if _output_files
+    end
 
+    def self.reset
+      @@stdout = nil
+      @@stderr = nil
     end
   end
 end
