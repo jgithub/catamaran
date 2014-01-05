@@ -25,11 +25,11 @@ module Catamaran
       ##
       # Should the caller component be added to the msg
 
-      if ( ( opts && opts[:file] && opts[:line] && opts[:method] ) || !@caller_enabled )
+      if ( ( opts && opts[:file] && opts[:line] && opts[:method] ) || !@@caller_enabled )
         # if file and line number are specified or the caller_enabled is disabled
         # then construct a formatted message that does NOT make use of the caller (caller is slow)
         append_caller_information = false
-      elsif @caller_enabled
+      elsif @@caller_enabled
         # else if the caller is enabled, make use of it
         append_caller_information = true
       else
