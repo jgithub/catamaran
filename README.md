@@ -275,9 +275,7 @@ require 'ruby-prof'
 
 class CatamaranProfilerTest
   LOGGER = Catamaran.logger( "com.mycompany.CatamaranProfilerTest" )
-  # or equivalently: 
-  # LOGGER = Catamaran.logger.com.mycompany.CatamaranProfilerTest
-
+  
   def run
     # Disabled by default
     LOGGER.trace( "TRACE logs are NOT captured by default" ) if LOGGER.trace?    
@@ -296,7 +294,7 @@ end
 
 RubyProf.start
 
-demo = FirstRubyDemo.new
+catamaran_profiler_test = CatamaranProfilerTest.new
 1000.times do
   demo.run
 end
@@ -304,7 +302,6 @@ end
 result = RubyProf.stop
 
 printer = RubyProf::GraphPrinter.new(result)
-
 printer.print(STDOUT)
 ```
 
