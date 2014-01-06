@@ -41,6 +41,18 @@ module Catamaran
       IO_LESS_CRITICAL_THAN_DEBUG => 'IO'
     }
 
+    STRING_TO_SEVERITY_MAP = {
+      'TRACE' => TRACE,
+      'DEBUG' => DEBUG,
+      'INFO' => INFO,
+      'NOTICE' => NOTICE,
+      'WARN' => WARN,
+      'ERROR' => ERROR,
+      'SEVERE' => SEVERE,
+      'FATAL' => FATAL
+    }    
+
+
     def self.reset
       self.send( :remove_const, 'IO' ) if self.const_defined?( 'IO' )
       self.const_set( 'IO', IO_LESS_CRITICAL_THAN_INFO )            
@@ -52,6 +64,10 @@ module Catamaran
     def self.severity_to_s( severity )
       SEVERITY_TO_STRING_MAP[severity] || ''
     end  
+
+    def self.string_to_severity( str )
+      str ? STRING_TO_SEVERITY_MAP[str.strip.upcase] : nil
+    end     
 
 
 

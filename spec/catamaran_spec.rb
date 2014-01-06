@@ -85,6 +85,25 @@ describe Catamaran do
         Catamaran.logger.log_level.should == Catamaran::LogLevel::NOTICE
       end
 
+      it "should make use of the environment variable when specified" do
+        initial_log_level = Catamaran.logger.log_level     
+
+        ENV['CATAMARAN_ROOT_LOGGER_LOG_LEVEL'] = 'ERROR'
+        Catamaran::Manager.forget_memoizations
+        Catamaran.logger.log_level.should == Catamaran::LogLevel::ERROR
+
+        ENV.delete( 'CATAMARAN_ROOT_LOGGER_LOG_LEVEL' )
+        Catamaran::Manager.forget_memoizations
+        initial_log_level.should == Catamaran::LogLevel::NOTICE     
+        
+        ENV['CATAMARAN_ROOT_LOGGER_LOG_LEVEL'] = ' error  '
+        Catamaran::Manager.forget_memoizations
+        Catamaran.logger.log_level.should == Catamaran::LogLevel::ERROR
+
+        ENV.delete( 'CATAMARAN_ROOT_LOGGER_LOG_LEVEL' )
+        Catamaran::Manager.forget_memoizations
+      end      
+
       it "should have a backtrace log level set to WARN" do
         Catamaran.logger.backtrace_log_level.should == Catamaran::LogLevel::WARN
       end      

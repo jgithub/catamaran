@@ -16,9 +16,16 @@ module Catamaran
         @log_level
       elsif self.parent.nil?
         # No parent means this logger(self) is the root logger.  So use the default log level
-        
+        if !@memoized_log_level
+          if ENV['CATAMARAN_ROOT_LOGGER_LOG_LEVEL']
+            @memoized_log_level = LogLevel.string_to_severity( ENV['CATAMARAN_ROOT_LOGGER_LOG_LEVEL'] )
+          else
+            @memoized_log_level = Catamaran::LogLevel::NOTICE
+          end
+        end
+
         # Implicit return
-        Catamaran::LogLevel::NOTICE
+        @memoized_log_level
       else
         recursive = ( opts && ( opts[:recursive] == true || opts[:be_populated] == true ) )
         if recursive == true 
