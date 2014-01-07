@@ -17,11 +17,12 @@ Now modify `config/initializers/catamaran/development.rb` as needed
 Ruby Quickstart
 ---------------
 ```ruby
+require 'catamaran'
 
-class WorkingWithCatamaran
-  LOGGER = Catamaran.logger( "com.mytld.WorkingWithCatamaran" )
+class QuickstartWithRuby
+  LOGGER = Catamaran.logger( "com.mytld.QuickstartWithRuby" )
   # or equivalently: 
-  # LOGGER = Catamaran.logger.com.mytld.WorkingWithCatamaran
+  # LOGGER = Catamaran.logger.com.mytld.QuickstartWithRuby
 
   def demonstrating_log_levels
     # Disabled by default
@@ -69,29 +70,29 @@ class WorkingWithCatamaran
   end
 end
 
-working_with_catamaran = WorkingWithCatamaran.new
-working_with_catamaran.demonstrating_log_levels
-working_with_catamaran.using_the_caller
-working_with_catamaran.changing_the_log_level
-working_with_catamaran.displaying_backtrace_information
+quickstart_with_ruby = QuickstartWithRuby.new
+quickstart_with_ruby.demonstrating_log_levels
+quickstart_with_ruby.using_the_caller
+quickstart_with_ruby.changing_the_log_level
+quickstart_with_ruby.displaying_backtrace_information
 ```
 
 And the output
 
 ```
-NOTICE pid-29665 [2014-01-05 08:30:24:213]                  com.mytld.WorkingWithCatamaran - NOTICE logs are captured by default
-  WARN pid-29665 [2014-01-05 08:30:24:213]                  com.mytld.WorkingWithCatamaran - WARN logs are captured by default
- ERROR pid-29665 [2014-01-05 08:30:24:213]                  com.mytld.WorkingWithCatamaran - ERROR logs are captured by default
-SEVERE pid-29665 [2014-01-05 08:30:24:213]                  com.mytld.WorkingWithCatamaran - SEVERE logs are captured by default
- FATAL pid-29665 [2014-01-05 08:30:24:213]                  com.mytld.WorkingWithCatamaran - FATAL logs are captured by default
-NOTICE pid-29665 [2014-01-05 08:30:24:213]                  com.mytld.WorkingWithCatamaran - The caller will append log location info to this message (working_with_catamaran.rb:27:in `using_the_caller')
-NOTICE pid-29665 [2014-01-05 08:30:24:213]                  com.mytld.WorkingWithCatamaran - If the user specifies the :file, :line, AND :method, the caller will NOT get invoked (working_with_catamaran.rb:28:in `run')
-NOTICE pid-29665 [2014-01-05 08:30:24:213]                  com.mytld.WorkingWithCatamaran - To prove the caller is not used, we can put dummy data in and see that it's being used instead (just_kidding.rb:123456789:in `whatever')
- DEBUG pid-29665 [2014-01-05 08:30:24:213]                  com.mytld.WorkingWithCatamaran - Now DEBUG messages should show up
-  WARN pid-29665 [2014-01-05 08:30:24:213]                  com.mytld.WorkingWithCatamaran - Sample WARN statement with backtrace requested
- ERROR pid-29665 [2014-01-05 08:30:24:213]                  com.mytld.WorkingWithCatamaran - Sample ERROR statement with backtrace requested from:
-working_with_catamaran.rb:51:in `displaying_backtrace_information'
-working_with_catamaran.rb:59:in `<main>'
+NOTICE pid-50247 [2014-01-07 13:22:28:516]                    com.mytld.QuickstartWithRuby - NOTICE logs are captured by default
+  WARN pid-50247 [2014-01-07 13:22:28:516]                    com.mytld.QuickstartWithRuby - WARN logs are captured by default
+ ERROR pid-50247 [2014-01-07 13:22:28:516]                    com.mytld.QuickstartWithRuby - ERROR logs are captured by default
+SEVERE pid-50247 [2014-01-07 13:22:28:516]                    com.mytld.QuickstartWithRuby - SEVERE logs are captured by default
+ FATAL pid-50247 [2014-01-07 13:22:28:516]                    com.mytld.QuickstartWithRuby - FATAL logs are captured by default
+NOTICE pid-50247 [2014-01-07 13:22:28:516]                    com.mytld.QuickstartWithRuby - The caller will append log location info to this message (quickstart_with_ruby.rb:27:in `using_the_caller')
+NOTICE pid-50247 [2014-01-07 13:22:28:516]                    com.mytld.QuickstartWithRuby - If the user specifies the :file, :line, AND :method, the caller will NOT get invoked (quickstart_with_ruby.rb:28:in `run')
+NOTICE pid-50247 [2014-01-07 13:22:28:517]                    com.mytld.QuickstartWithRuby - To prove the caller is not used, we can put dummy data in and see that it's being used instead (just_kidding.rb:123456789:in `whatever')
+ DEBUG pid-50247 [2014-01-07 13:22:28:517]                    com.mytld.QuickstartWithRuby - Now DEBUG messages should show up
+  WARN pid-50247 [2014-01-07 13:22:28:517]                    com.mytld.QuickstartWithRuby - Sample WARN statement with backtrace requested
+ ERROR pid-50247 [2014-01-07 13:22:28:517]                    com.mytld.QuickstartWithRuby - Sample ERROR statement with backtrace requested from:
+quickstart_with_ruby.rb:51:in `displaying_backtrace_information'
+quickstart_with_ruby.rb:59:in `<main>'
 ```
 
 
