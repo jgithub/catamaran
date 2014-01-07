@@ -123,20 +123,21 @@ The `NOTICE` log level severity is the default.   Any logs with `NOTICE` or high
 
 Inspiration
 -----------
+I always liked working with log4j.  Much of the inspriation comes from that.
+
+* Named Hierarchy
+* Level Inheritance
+* `TRACE`
+
 I'm looking for a logging utility that:
 
 * records granular timestamps with each log entry
 * records the process ID with each log entry
 * captures from where each log entry was generated
 * works equally well with classes that do and do *not* extend Rails base classes
-* supports the TRACE log level (or other log level less critical than DEBUG). 
-* is capable of capturing logs at different severity thresholds from different parts of the app simultaneously (I always liked the Named Hierarchy and Level Inheritance aspects of log4j)
+* supports the TRACE log level (or other log level less critical than DEBUG).
+* is capable of capturing logs at different severity thresholds from different parts of the app simultaneously 
 * readily works with Rails
-* http://stackoverflow.com/questions/462651/rails-logger-format-string-configuration
-* http://stackoverflow.com/questions/3654827/logging-in-rails-app
-* http://stackoverflow.com/questions/11991967/rails-log-too-verbose
-* http://www.ietf.org/rfc/rfc3164.txt
-* http://logging.apache.org/log4j/1.2
 
 Performance Considerations
 --------------------------
@@ -275,7 +276,7 @@ require 'ruby-prof'
 
 class CatamaranProfilerTest
   LOGGER = Catamaran.logger( "com.mycompany.CatamaranProfilerTest" )
-  
+
   def run
     # Disabled by default
     LOGGER.trace( "TRACE logs are NOT captured by default" ) if LOGGER.trace?    
@@ -507,6 +508,15 @@ Ideas around what's next
 * Heroku support (https://blog.heroku.com/archives/2013/7/15/logging-on-heroku)
 * Buffered file I/O considerations
 
-
+See also
+--------
+* http://stackoverflow.com/questions/462651/rails-logger-format-string-configuration
+* http://stackoverflow.com/questions/3654827/logging-in-rails-app
+* http://stackoverflow.com/questions/11991967/rails-log-too-verbose
+* http://www.ietf.org/rfc/rfc3164.txt
+* http://logging.apache.org/log4j/1.2
+* https://github.com/TwP/logging
+* https://github.com/colbygk/log4r
+* http://guides.rubyonrails.org/debugging_rails_applications.html#the-logger
 
 
