@@ -115,12 +115,15 @@ Load the `index` page and check out your `development.log` file
 
     DEBUG pid-86000 [2013-12-17 17:26:39:176] ld.myrailsapp.app.controllers.WidgetsController - "Handling a Widgets index request with params = {"controller"=>"widgets", "action"=>"index"} (`/myrailsapp/app/controllers/widgets_controller.rb:7`:in `index`)
 
+More Examples
+-------------
+See the [examples folder](https://github.com/jgithub/catamaran/tree/master/examples).
+
 Log Levels
 ----------
 Available log levels:  `TRACE` (verbose and trivial log messages), `DEBUG`, `INFO`, `NOTICE`, `WARN`, `ERROR`, `SEVERE` (logs related to very serious error conditions), `FATAL`
 
 The `NOTICE` log level severity is the default.   Any logs with `NOTICE` or higher severity will be captured.
-
 
 Inspiration
 -----------
