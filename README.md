@@ -148,53 +148,50 @@ Performance Considerations
 
 ### With or without `if LOGGER.debug?`
 ```ruby
+$: << '../lib'
+
 require 'catamaran'
 require 'benchmark'
 
-Catamaran::LogLevel.default_log_level = Catamaran::LogLevel::INFO 
+Catamaran.logger.log_level = Catamaran::LogLevel::INFO 
 Catamaran::Manager.stderr = false
 
-class CatamaranConditionalLogStatementBenchmark
-  LOGGER = Catamaran.logger( "CatamaranConditionalLogStatementBenchmark" )
+class BenchmarkingConditionalLogStatements
+  LOGGER = Catamaran.logger( "BenchmarkingConditionalLogStatements" )
 
   # NOTE that the log level for this test is set to INFO, 
   # so 'warn' logs are enabled and 'debug' logs are disabled
 
   n = 500000
   Benchmark.bm(7) do |x|
-    x.report("warn WITHOUT if LOGGER.warn?  ") {
+    x.report("LOGGER.warn WITHOUT if LOGGER.warn?  ") {
       n.times do |i|
         LOGGER.warn "Based on the current log level, this log is being captured"
       end
     }
-    x.report("warn WITH if LOGGER.warn?     ") {
+    x.report("LOGGER.warn WITH if LOGGER.warn?     ") {
       n.times do |i|
         LOGGER.warn "Based on the current log level, this log is being captured" if LOGGER.warn?
       end
     }
-  end
-
-  Benchmark.bm(7) do |x|
-    x.report("debug WITHOUT if LOGGER.debug?") {
+    x.report("LOGGER.debug WITHOUT if LOGGER.debug?") {
       n.times do |i|
         LOGGER.debug "Based on the current log level, this log is NOT being captured"
       end
     }
-    x.report("debug WITH if LOGGER.debug?   ") {
+    x.report("LOGGER.debug WITH if LOGGER.debug?   ") {
       n.times do |i|
         LOGGER.debug "Based on the current log level, this log is NOT being captured" if LOGGER.debug?       
       end
     }
   end 
-
 end
 
-#                                     user     system      total        real
-# warn WITHOUT if LOGGER.warn?    6.940000   0.010000   6.950000 (  6.950691)
-# warn WITH if LOGGER.warn?       7.650000   0.000000   7.650000 (  7.658004)
-#                                     user     system      total        real
-# debug WITHOUT if LOGGER.debug?  0.660000   0.010000   0.670000 (  0.665775)
-# debug WITH if LOGGER.debug?     0.560000   0.010000   0.570000 (  0.574397)
+#                                            user     system      total        real
+# LOGGER.warn WITHOUT if LOGGER.warn?    6.440000   0.090000   6.530000 (  6.533838)
+# LOGGER.warn WITH if LOGGER.warn?       7.110000   0.120000   7.230000 (  7.242870)
+# LOGGER.debug WITHOUT if LOGGER.debug?  0.530000   0.020000   0.550000 (  0.548454)
+# LOGGER.debug WITH if LOGGER.debug?     0.450000   0.030000   0.480000 (  0.474419)
 ```
 
 #### Summary
