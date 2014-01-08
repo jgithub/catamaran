@@ -6,7 +6,7 @@ Logging is a powerful and often undervalued tool in software development.  When 
 Gemfile
 -------
 
-    gem 'catamaran', '~> 2.1.0'
+    gem 'catamaran', '~> 2.2.0'
 
 Rails-related setup:
 
