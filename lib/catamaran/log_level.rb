@@ -50,7 +50,18 @@ module Catamaran
       'ERROR' => ERROR,
       'SEVERE' => SEVERE,
       'FATAL' => FATAL
-    }    
+    }
+
+    SYMBOL_TO_SEVERITY_MAP = {
+      :trace => TRACE,
+      :debug => DEBUG,
+      :info => INFO,
+      :notice => NOTICE,
+      :warn => WARN,
+      :error => ERROR,
+      :severe => SEVERE,
+      :fatal => FATAL
+    }         
 
 
     def self.reset
@@ -69,7 +80,9 @@ module Catamaran
       str ? STRING_TO_SEVERITY_MAP[str.strip.upcase] : nil
     end     
 
-
+    def self.symbol_to_severity( sym )
+      sym ? SYMBOL_TO_SEVERITY_MAP[sym] : nil
+    end 
 
     def self.log_level_io=( value )
       self.send( :remove_const, 'IO' ) if self.const_defined?( 'IO' )

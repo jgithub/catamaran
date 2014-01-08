@@ -57,8 +57,21 @@ module Catamaran
     ##
     # Setter used to explicitly set the log level for this logger
 
+
+
     def log_level=( value )
-      @log_level = value
+      if value 
+        if value.kind_of?( Symbol )
+          @log_level = LogLevel.symbol_to_severity( value )
+        elsif value.kind_of?( String )
+          @log_level = LogLevel.string_to_severity( value )
+        else 
+          @log_level = value
+        end     
+      else
+        @log_level = nil
+      end
+      
       @memoized_log_level = nil      
     end
 

@@ -75,16 +75,48 @@ describe Catamaran do
     end 
   end         
 
-  it "should be possible for the user to modify the log level of root logger" do
-    Catamaran.logger.log_level = Catamaran::LogLevel::TRACE
-    Catamaran.logger.log_level.should == Catamaran::LogLevel::TRACE
+  context "using log level constants" do
+    it "should be possible for the user to modify the log level of root logger" do
+      Catamaran.logger.log_level = Catamaran::LogLevel::TRACE
+      Catamaran.logger.log_level.should == Catamaran::LogLevel::TRACE
+    end
+
+    it "should be possible for the user to modify the log level of non-root loggers" do
+      Catamaran.logger.whatever.log_level.should be_nil
+      Catamaran.logger.whatever.log_level = Catamaran::LogLevel::TRACE
+      Catamaran.logger.whatever.log_level.should == Catamaran::LogLevel::TRACE
+    end  
   end
 
-  it "should be possible for the user to modify the log level of non-root loggers" do
-    Catamaran.logger.whatever.log_level.should be_nil
-    Catamaran.logger.whatever.log_level = Catamaran::LogLevel::TRACE
-    Catamaran.logger.whatever.log_level.should == Catamaran::LogLevel::TRACE
-  end  
+  context "using symbols" do
+    it "should be possible for the user to modify the log level of root logger" do
+      Catamaran.logger.log_level = :trace
+      Catamaran.logger.log_level.should == Catamaran::LogLevel::TRACE
+    end
+
+    it "should be possible for the user to modify the log level of non-root loggers" do
+      Catamaran.logger.whatever.log_level.should be_nil
+      Catamaran.logger.whatever.log_level = :trace
+      Catamaran.logger.whatever.log_level.should == Catamaran::LogLevel::TRACE
+    end  
+  end 
+
+  context "using strings" do
+    it "should be possible for the user to modify the log level of root logger" do
+      Catamaran.logger.log_level = 'trace'
+      Catamaran.logger.log_level.should == Catamaran::LogLevel::TRACE
+      Catamaran.logger.log_level = 'deBuG '
+      Catamaran.logger.log_level.should == Catamaran::LogLevel::DEBUG
+    end
+
+    it "should be possible for the user to modify the log level of non-root loggers" do
+      Catamaran.logger.whatever.log_level.should be_nil
+      Catamaran.logger.whatever.log_level = ' TRACe '
+      Catamaran.logger.whatever.log_level.should == Catamaran::LogLevel::TRACE
+      Catamaran.logger.whatever.log_level = ' INFO '
+      Catamaran.logger.whatever.log_level.should == Catamaran::LogLevel::INFO
+    end  
+  end    
 
   it "should not provide the same object ID for different paths" do
     Catamaran.logger.A.C.object_id.should_not == Catamaran.logger.B.C
