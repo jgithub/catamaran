@@ -11,6 +11,9 @@ Catamaran.logger.log_level = Catamaran::LogLevel::DEBUG
 # There is a performance hit for using the caller, but it generates more detailed logs
 Catamaran::Manager.formatter_caller_enabled = true
 
+# Uncomment if you'd prefer Ruby-style delimiters
+Catamaran::Manager.delimiter = '::'
+
 # Uncomment to enable Catamaran internal debugging
 # Catamaran::debugging = true
 

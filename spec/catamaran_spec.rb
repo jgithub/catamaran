@@ -48,12 +48,32 @@ describe Catamaran do
     logger2.object_id.should == logger.object_id
   end
 
-  it "should create a new loggers for each point in the path" do
-    Catamaran.logger
-    Catamaran::Manager.num_loggers.should == 1
-    Catamaran.logger.com.mycompany.myrailsproject.app.models.User
-    Catamaran::Manager.num_loggers.should == 7    
-  end     
+  context "when using method_missing" do
+    it "should create a new loggers for each point in the path" do
+      Catamaran.logger
+      Catamaran::Manager.num_loggers.should == 1
+      Catamaran.logger.com.mycompany.myrailsproject.app.models.User
+      Catamaran::Manager.num_loggers.should == 7    
+    end 
+  end 
+
+  context "when using a specified string and period as the delimiter" do
+    it "should create a new loggers for each point in the path" do
+      Catamaran.logger
+      Catamaran::Manager.num_loggers.should == 1
+      Catamaran.logger( "com.mycompany.myrailsproject.app.models.User" )
+      Catamaran::Manager.num_loggers.should == 7    
+    end 
+  end
+
+  context "when using a specified string and double-colons as the delimiter" do
+    it "should create a new loggers for each point in the path" do
+      Catamaran.logger
+      Catamaran::Manager.num_loggers.should == 1
+      Catamaran.logger( "com::mycompany::myrailsproject::app::models::User" )
+      Catamaran::Manager.num_loggers.should == 7    
+    end 
+  end         
 
   it "should be possible for the user to modify the log level of root logger" do
     Catamaran.logger.log_level = Catamaran::LogLevel::TRACE
@@ -342,6 +362,19 @@ describe Catamaran do
       Catamaran.logger.smart_log_level.should > Catamaran::LogLevel::DEBUG
       Catamaran.logger.should_not_receive( :log )
       Catamaran.logger.debug( "And INFO log should NOT be received" )
+    end
+
+    describe "#path_to_s" do
+      it "should use a period as the default delimiter" do
+        logger = Catamaran.logger.com.mycompany.myrailsproject.app.models.User
+        logger.path_to_s.should == "com.mycompany.myrailsproject.app.models.User"    
+      end
+
+      it "should be capable of using a user-specified delimiter" do
+        Catamaran::Manager.delimiter = "::"
+        logger = Catamaran.logger.App.Model.User
+        logger.path_to_s.should == "App::Model::User"    
+      end      
     end
 
     describe "#forget_memoizations" do

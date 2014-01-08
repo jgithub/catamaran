@@ -320,7 +320,7 @@ module Catamaran
 
         
       if path
-        method_names = path.split(/\./)
+        method_names = path.split(/\.|\:\:/)
 
         method_names.each do |method_name|
           current_logger = current_logger.send( method_name.to_sym ) 
