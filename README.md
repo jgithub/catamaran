@@ -1,7 +1,7 @@
 Catamaran
 =========
 
-Logging is a powerful and often undervalued tool in software development.  When done right, it's a great way to document code, and it provides a simple &amp; effective way to solve problems when things go awry.  All an important part of maintainable code.
+Logging is a powerful and often undervalued tool in software development.  When done right, it's a great way to document code, and it provides a simple &amp; effective way to solve problems when things go awry.  All an important part of maintainable code. 
 
 Gemfile
 -------
@@ -125,23 +125,17 @@ Available log levels:  `TRACE` (verbose and trivial log messages), `DEBUG`, `INF
 
 The `NOTICE` log level severity is the default.   Any logs with `NOTICE` or higher severity will be captured.
 
-Inspiration
------------
-I always liked working with log4j.  Much of the inspriation comes from that.
+## Why Catamaran?  
+### What I was looking for and why existing solutions didn't really work for me
 
-* Named Hierarchy
-* Level Inheritance
-* `TRACE`
-
-I'm looking for a logging utility that:
-
-* records granular timestamps with each log entry
-* records the process ID with each log entry
-* captures from where each log entry was generated
-* works equally well with classes that do and do *not* extend Rails base classes
-* supports the TRACE log level (or other log level less critical than DEBUG).
-* is capable of capturing logs at different severity thresholds from different parts of the app simultaneously 
-* readily works with Rails
+* Years ago we used [log4j](http://logging.apache.org/log4j/1.2/manual.html) with Java.  It worked great.  It made use of Named Hierarchy and Level Inheritance which seemed well thought out.  
+* It's valuable to be able to enable verbose logging in targetted areas (but not all areas) of the application.  For instance, I might want to enable verbose DEBUG logs in the models but not in the controllers.  That was easy with log4j.
+* Log messages should have graunlar timestamps (milliseconds), process IDs, and location information embedded in them.  That was easy with log4j. 
+* There needs to be more than one log severity available for "debugging stuff."  Some debug log statements are too verbose for every day use.  log4j handled this by creating another log level, `TRACE`,  that was less-critical than `DEBUG`.
+* Many of the Ruby logging tools don't seem to put any emphasis on performance.  With potentially large number of log statements being traversed on every request, I think it's a valuable consideration. 
+* I was looking for a utility that works equally well with or without Rails
+* log4r seemed like a natural choice coming from log4j.  But at the time, log4r wasn't actively being worked on.  It seems they've recently restarted development. 
+* I started thinking about Ruby logging a few years ago.  I wasn't aware of [TwP/logging](https://github.com/TwP/logging) until recently. 
 
 Performance Considerations
 --------------------------
