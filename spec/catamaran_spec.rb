@@ -373,6 +373,39 @@ describe Catamaran do
       Catamaran.logger.trace?.should be_true
     end
 
+    it "should support the INFO log severity and info()" do
+     Catamaran.logger.log_level = Catamaran::LogLevel::INFO
+      Catamaran.logger.should_receive( :log ).once
+      Catamaran.logger.info( "A INFO log should be received" )
+    end
+
+    it "should support the INFO log severity and info?()" do
+      Catamaran.logger.log_level = Catamaran::LogLevel::INFO      
+      Catamaran.logger.info?.should be_true
+    end 
+
+    it "should support the NOTICE log severity and notice()" do
+      Catamaran.logger.log_level = Catamaran::LogLevel::NOTICE
+      Catamaran.logger.should_receive( :log ).once
+      Catamaran.logger.notice( "A NOTICE log should be received" )
+    end
+
+    it "should support the NOTICE log severity and notice?()" do
+      Catamaran.logger.log_level = Catamaran::LogLevel::NOTICE      
+      Catamaran.logger.notice?.should be_true
+    end 
+
+    it "should support the SEVERE log severity and severe()" do
+      Catamaran.logger.smart_log_level.should < Catamaran::LogLevel::SEVERE
+      Catamaran.logger.should_receive( :log ).once
+      Catamaran.logger.severe( "A SEVERE log should be received" )
+    end
+
+    it "should support the SEVERE log severity and severe?()" do
+      Catamaran.logger.smart_log_level.should < Catamaran::LogLevel::SEVERE
+      Catamaran.logger.severe?.should be_true
+    end  
+
     it "should support the FATAL log severity and fatal()" do
       Catamaran.logger.smart_log_level.should < Catamaran::LogLevel::FATAL
       Catamaran.logger.should_receive( :log ).once
