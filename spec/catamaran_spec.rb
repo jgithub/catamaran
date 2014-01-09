@@ -373,6 +373,39 @@ describe Catamaran do
       Catamaran.logger.trace?.should be_true
     end
 
+    it "should support the INFO log severity and info()" do
+     Catamaran.logger.log_level = Catamaran::LogLevel::INFO
+      Catamaran.logger.should_receive( :log ).once
+      Catamaran.logger.info( "A INFO log should be received" )
+    end
+
+    it "should support the INFO log severity and info?()" do
+      Catamaran.logger.log_level = Catamaran::LogLevel::INFO      
+      Catamaran.logger.info?.should be_true
+    end 
+
+    it "should support the NOTICE log severity and notice()" do
+      Catamaran.logger.log_level = Catamaran::LogLevel::NOTICE
+      Catamaran.logger.should_receive( :log ).once
+      Catamaran.logger.notice( "A NOTICE log should be received" )
+    end
+
+    it "should support the NOTICE log severity and notice?()" do
+      Catamaran.logger.log_level = Catamaran::LogLevel::NOTICE      
+      Catamaran.logger.notice?.should be_true
+    end 
+
+    it "should support the SEVERE log severity and severe()" do
+      Catamaran.logger.smart_log_level.should < Catamaran::LogLevel::SEVERE
+      Catamaran.logger.should_receive( :log ).once
+      Catamaran.logger.severe( "A SEVERE log should be received" )
+    end
+
+    it "should support the SEVERE log severity and severe?()" do
+      Catamaran.logger.smart_log_level.should < Catamaran::LogLevel::SEVERE
+      Catamaran.logger.severe?.should be_true
+    end  
+
     it "should support the FATAL log severity and fatal()" do
       Catamaran.logger.smart_log_level.should < Catamaran::LogLevel::FATAL
       Catamaran.logger.should_receive( :log ).once
@@ -433,6 +466,26 @@ describe Catamaran do
         Catamaran.logger.send( :determine_path_and_opts_arguments, "mycompany.myrailsproject.app.models.User", {} ).should == [ "mycompany.myrailsproject.app.models.User", {} ]
       end      
     end
+
+    describe "#debug?" do
+      it "should call default_debug? the first time" do
+        Catamaran.logger.should_receive( :default_debug? ).once
+        Catamaran.logger.debug?
+      end
+
+      it "should only call default_debug? once" do
+        Catamaran.logger.debug?
+        Catamaran.logger.should_not_receive( :default_debug? )
+        Catamaran.logger.debug?
+      end  
+
+      it "should call default_debug? again after the memoizations have " do
+        Catamaran.logger.debug?
+        Catamaran::Manager.forget_memoizations()
+        Catamaran.logger.should_receive( :default_debug? ).once
+        Catamaran.logger.debug?
+      end          
+    end 
 
     it "should inherit the log level (via smart_log_level) from it's ancestors" do
       Catamaran.logger.log_level = Catamaran::LogLevel::INFO

@@ -135,41 +135,15 @@ module Catamaran
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     ##
     # Is trace-level logging currently enabled?
 
     def trace?
-      if self.log_level( { :be_populated => true } ) <= LogLevel::TRACE
-        true
-      else
-        false
-      end
+      default_trace?
     end
 
     def trace( msg, opts = nil )
-      # Duplicated the logic from trace?() (rather than calling it directly) for performance considerations          
-      if self.log_level( { :be_populated => true } ) <= LogLevel::TRACE
+      if trace?
         log( LogLevel::TRACE, msg, opts )
       end
     end
@@ -178,16 +152,11 @@ module Catamaran
     # Is debug-level logging currently enabled?
 
     def debug?
-      if self.log_level( { :be_populated => true } ) <= LogLevel::DEBUG
-        true
-      else
-        false
-      end
+      default_debug?
     end
 
     def debug( msg, opts = nil )
-       # Duplicated the logic from debug?() (rather than calling it directly) for performance considerations            
-      if self.log_level( { :be_populated => true } ) <= LogLevel::DEBUG
+       if debug?
         log( LogLevel::DEBUG, msg, opts )
       end
     end
@@ -197,16 +166,11 @@ module Catamaran
     # Is io-level logging currently enabled?
 
     def io?
-      if self.log_level( { :be_populated => true } ) <= LogLevel::IO
-        true
-      else
-        false
-      end
+      default_io?
     end
 
     def io( msg, opts = nil )
-       # Duplicated the logic from io?() (rather than calling it directly) for performance considerations      
-      if self.log_level( { :be_populated => true } ) <= LogLevel::IO
+      if io?
         log( LogLevel::IO, msg, opts )
       end
     end
@@ -215,16 +179,11 @@ module Catamaran
     # Is info-level logging currently enabled?
 
     def info?
-      if self.log_level( { :be_populated => true } ) <= LogLevel::INFO
-        true
-      else
-        false
-      end
+      default_info?
     end
 
     def info( msg, opts = nil )
-       # Duplicated the logic from info?() (rather than calling it directly) for performance considerations
-      if self.log_level( { :be_populated => true } ) <= LogLevel::INFO
+      if info?
         log( LogLevel::INFO, msg, opts )
       end
     end 
@@ -233,16 +192,11 @@ module Catamaran
     # Is notice-level logging currently enabled?
 
     def notice?
-      if self.log_level( { :be_populated => true } ) <= LogLevel::NOTICE
-        true
-      else
-        false
-      end
+      default_notice?
     end
 
     def notice( msg, opts = nil )
-      # Duplicated the logic from notice?() (rather than calling it directly) for performance considerations
-      if self.log_level( { :be_populated => true } ) <= LogLevel::NOTICE
+      if notice?
         log( LogLevel::NOTICE, msg, opts )
       end
     end    
@@ -251,16 +205,11 @@ module Catamaran
     # Is warn-level logging currently enabled?
 
     def warn?
-      if self.log_level( { :be_populated => true } ) <= LogLevel::WARN
-        true
-      else
-        false
-      end
+      default_warn?
     end
 
     def warn( msg, opts = nil )
-      # Duplicated the logic from warn?() (rather than calling it directly) for performance considerations
-      if self.log_level( { :be_populated => true } ) <= LogLevel::WARN
+      if warn?
         log( LogLevel::WARN, msg, opts )
       end
     end     
@@ -269,16 +218,11 @@ module Catamaran
     # Is error-level logging currently enabled?
 
     def error?
-      if self.log_level( { :be_populated => true } ) <= LogLevel::ERROR
-        true
-      else
-        false
-      end
+      default_error?
     end
 
     def error( msg, opts = nil )
-      # Duplicated the logic from error?() (rather than calling it directly) for performance considerations
-      if self.log_level( { :be_populated => true } ) <= LogLevel::ERROR
+      if error?
         log( LogLevel::ERROR, msg, opts )
       end
     end 
@@ -287,16 +231,11 @@ module Catamaran
     # Is severe-level logging currently enabled?
 
     def severe?
-      if self.log_level( { :be_populated => true } ) <= LogLevel::SEVERE
-        true
-      else
-        false
-      end
+      default_severe?
     end
 
     def severe( msg, opts = nil )
-      # Duplicated the logic from severe?() (rather than calling it directly) for performance considerations      
-      if self.log_level( { :be_populated => true } ) <= LogLevel::SEVERE
+      if severe?
         log( LogLevel::SEVERE, msg, opts )
       end
     end   
@@ -305,16 +244,11 @@ module Catamaran
     # Is fatal-level logging currently enabled?
 
     def fatal?
-      if self.smart_log_level() <= LogLevel::FATAL
-        true
-      else
-        false
-      end
+      default_fatal?
     end
 
     def fatal( msg, opts = nil )
-      # Duplicated the logic from fatal?() (rather than calling it directly) for performance considerations      
-      if self.log_level( { :be_populated => true } ) <= LogLevel::FATAL
+      if fatal?
         log( LogLevel::FATAL, msg, opts )
       end
     end            
@@ -416,11 +350,26 @@ module Catamaran
       @memoized_backtrace_log_level = nil
       @memoized_delimiter = nil
 
+      # This is arguably a form of memoization
+      define_all_logging_conditional_defaults()
+
       @sub_loggers.values.each do |logger|
         logger.forget_memoizations()
       end
     end
 
+    def define_all_logging_conditional_defaults
+      [ :io, :trace, :debug, :info, :notice, :warn, :error, :severe, :fatal ].each do |log_level_as_symbol|
+        define_default_logging_conditional( log_level_as_symbol )
+      end
+    end
+
+    def define_default_logging_conditional( log_level_as_symbol )
+      singleton = class << self; self end
+      singleton.send( :define_method, "#{log_level_as_symbol}?".to_sym ) do
+        send( "default_#{log_level_as_symbol}?".to_sym )
+      end 
+    end
 
     ##
     # Number of loggers known about by this logger (including sub-loggers)
@@ -444,12 +393,10 @@ module Catamaran
     # Unless otherwise specified, a reset() is a soft reset by default.
 
     def reset( opts = {} )
-
-      @memoized_log_level = nil
       @log_level = nil 
       @backtrace_log_level = nil
-      @memoized_backtrace_log_level = nil
-      @memoized_delimiter = nil
+
+      forget_memoizations()
 
       self.name = @initialized_name
       self.path = @initialized_path_so_far ? @initialized_path_so_far.dup : []
@@ -512,6 +459,169 @@ module Catamaran
     end
 
     protected
+
+    def default_trace?
+      if self.log_level( { :be_populated => true } ) <= LogLevel::TRACE
+        singleton = class << self; self end
+        singleton.send( :define_method, :trace? ) do
+          true
+        end 
+
+        true
+      else
+        singleton = class << self; self end
+        singleton.send( :define_method, :trace? ) do
+          false
+        end 
+
+        false
+      end
+    end
+
+    def default_debug?
+      if self.log_level( { :be_populated => true } ) <= LogLevel::DEBUG
+        singleton = class << self; self end
+        singleton.send( :define_method, :debug? ) do
+          true
+        end 
+
+        true
+      else
+        singleton = class << self; self end
+        singleton.send( :define_method, :debug? ) do
+          false
+        end 
+
+        false
+      end
+    end   
+
+    def default_io?
+      if self.log_level( { :be_populated => true } ) <= LogLevel::IO
+        singleton = class << self; self end
+        singleton.send( :define_method, :io? ) do
+          true
+        end 
+
+        true
+      else
+        singleton = class << self; self end
+        singleton.send( :define_method, :io? ) do
+          false
+        end 
+
+        false
+      end
+    end
+
+    def default_info?
+      if self.log_level( { :be_populated => true } ) <= LogLevel::INFO
+        singleton = class << self; self end
+        singleton.send( :define_method, :info? ) do
+          true
+        end 
+
+        true
+      else
+        singleton = class << self; self end
+        singleton.send( :define_method, :info? ) do
+          false
+        end 
+
+        false
+      end
+    end
+
+    def default_notice?
+      if self.log_level( { :be_populated => true } ) <= LogLevel::NOTICE
+        singleton = class << self; self end
+        singleton.send( :define_method, :notice? ) do
+          true
+        end 
+
+        true
+      else
+        singleton = class << self; self end
+        singleton.send( :define_method, :notice? ) do
+          false
+        end 
+
+        false
+      end
+    end   
+
+    def default_warn?
+      if self.log_level( { :be_populated => true } ) <= LogLevel::WARN
+        singleton = class << self; self end
+        singleton.send( :define_method, :warn? ) do
+          true
+        end 
+
+        true
+      else
+        singleton = class << self; self end
+        singleton.send( :define_method, :warn? ) do
+          false
+        end 
+
+        false
+      end
+    end
+
+    def default_error?
+      if self.log_level( { :be_populated => true } ) <= LogLevel::ERROR
+        singleton = class << self; self end
+        singleton.send( :define_method, :error? ) do
+          true
+        end 
+
+        true
+      else
+        singleton = class << self; self end
+        singleton.send( :define_method, :error? ) do
+          false
+        end 
+
+        false
+      end
+    end
+
+    def default_severe?
+      if self.log_level( { :be_populated => true } ) <= LogLevel::SEVERE
+        singleton = class << self; self end
+        singleton.send( :define_method, :severe? ) do
+          true
+        end 
+
+        true
+      else
+        singleton = class << self; self end
+        singleton.send( :define_method, :severe? ) do
+          false
+        end 
+
+        false
+      end
+    end
+
+    def default_fatal?
+      if self.log_level( { :be_populated => true } ) <= LogLevel::FATAL
+        singleton = class << self; self end
+        singleton.send( :define_method, :fatal? ) do
+          true
+        end 
+
+        true
+      else
+        singleton = class << self; self end
+        singleton.send( :define_method, :fatal? ) do
+          false
+        end 
+
+        false
+      end
+    end
+      
 
     def determine_path_and_opts_arguments( *args )
       Catamaran.debugging( "Catamaran::Logger#reset() - Entering with args = #{args}" )  if Catamaran.debugging?
