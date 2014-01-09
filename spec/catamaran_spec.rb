@@ -467,6 +467,26 @@ describe Catamaran do
       end      
     end
 
+    describe "#debug?" do
+      it "should call default_debug? the first time" do
+        Catamaran.logger.should_receive( :default_debug? ).once
+        Catamaran.logger.debug?
+      end
+
+      it "should only call default_debug? once" do
+        Catamaran.logger.debug?
+        Catamaran.logger.should_not_receive( :default_debug? )
+        Catamaran.logger.debug?
+      end  
+
+      it "should call default_debug? again after the memoizations have " do
+        Catamaran.logger.debug?
+        Catamaran::Manager.forget_memoizations()
+        Catamaran.logger.should_receive( :default_debug? ).once
+        Catamaran.logger.debug?
+      end          
+    end 
+
     it "should inherit the log level (via smart_log_level) from it's ancestors" do
       Catamaran.logger.log_level = Catamaran::LogLevel::INFO
       Catamaran.logger.com.mycompany.myrailsproject.app.models.log_level = Catamaran::LogLevel::ERROR
