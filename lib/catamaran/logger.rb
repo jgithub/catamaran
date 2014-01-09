@@ -178,8 +178,7 @@ module Catamaran
     end
 
     def trace( msg, opts = nil )
-      # Duplicated the logic from trace?() (rather than calling it directly) for performance considerations          
-      if self.log_level( { :be_populated => true } ) <= LogLevel::TRACE
+      if trace?
         log( LogLevel::TRACE, msg, opts )
       end
     end
@@ -210,8 +209,7 @@ module Catamaran
     end
 
     def debug( msg, opts = nil )
-       # Duplicated the logic from debug?() (rather than calling it directly) for performance considerations            
-      if self.log_level( { :be_populated => true } ) <= LogLevel::DEBUG
+       if debug?
         log( LogLevel::DEBUG, msg, opts )
       end
     end
@@ -243,8 +241,7 @@ module Catamaran
     end
 
     def io( msg, opts = nil )
-       # Duplicated the logic from io?() (rather than calling it directly) for performance considerations      
-      if self.log_level( { :be_populated => true } ) <= LogLevel::IO
+      if io?
         log( LogLevel::IO, msg, opts )
       end
     end
@@ -275,8 +272,7 @@ module Catamaran
     end
 
     def info( msg, opts = nil )
-       # Duplicated the logic from info?() (rather than calling it directly) for performance considerations
-      if self.log_level( { :be_populated => true } ) <= LogLevel::INFO
+      if info?
         log( LogLevel::INFO, msg, opts )
       end
     end 
@@ -307,8 +303,7 @@ module Catamaran
     end
 
     def notice( msg, opts = nil )
-      # Duplicated the logic from notice?() (rather than calling it directly) for performance considerations
-      if self.log_level( { :be_populated => true } ) <= LogLevel::NOTICE
+      if notice?
         log( LogLevel::NOTICE, msg, opts )
       end
     end    
@@ -339,8 +334,7 @@ module Catamaran
     end
 
     def warn( msg, opts = nil )
-      # Duplicated the logic from warn?() (rather than calling it directly) for performance considerations
-      if self.log_level( { :be_populated => true } ) <= LogLevel::WARN
+      if warn?
         log( LogLevel::WARN, msg, opts )
       end
     end     
@@ -371,8 +365,7 @@ module Catamaran
     end
 
     def error( msg, opts = nil )
-      # Duplicated the logic from error?() (rather than calling it directly) for performance considerations
-      if self.log_level( { :be_populated => true } ) <= LogLevel::ERROR
+      if error?
         log( LogLevel::ERROR, msg, opts )
       end
     end 
@@ -403,8 +396,7 @@ module Catamaran
     end
 
     def severe( msg, opts = nil )
-      # Duplicated the logic from severe?() (rather than calling it directly) for performance considerations      
-      if self.log_level( { :be_populated => true } ) <= LogLevel::SEVERE
+      if severe?
         log( LogLevel::SEVERE, msg, opts )
       end
     end   
@@ -435,8 +427,7 @@ module Catamaran
     end
 
     def fatal( msg, opts = nil )
-      # Duplicated the logic from fatal?() (rather than calling it directly) for performance considerations      
-      if self.log_level( { :be_populated => true } ) <= LogLevel::FATAL
+      if fatal?
         log( LogLevel::FATAL, msg, opts )
       end
     end            
