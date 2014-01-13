@@ -48,32 +48,38 @@ describe Catamaran do
     logger2.object_id.should == logger.object_id
   end
 
-  context "when using method_missing" do
-    it "should create a new loggers for each point in the path" do
-      Catamaran.logger
-      Catamaran::Manager.num_loggers.should == 1
-      Catamaran.logger.com.mycompany.myrailsproject.app.models.User
-      Catamaran::Manager.num_loggers.should == 7    
-    end 
-  end 
+  context "when creating new loggers" do
+    let(:target_logger_count){ 7 }
 
-  context "when using a specified string and period as the delimiter" do
-    it "should create a new loggers for each point in the path" do
-      Catamaran.logger
-      Catamaran::Manager.num_loggers.should == 1
-      Catamaran.logger( "com.mycompany.myrailsproject.app.models.User" )
-      Catamaran::Manager.num_loggers.should == 7    
-    end 
+    context "using method_missing" do
+      it "should create a new logger for each point in the path" do
+        Catamaran.logger.com.mycompany.myrailsproject.app.models.User
+        Catamaran::Manager.num_loggers.should == target_logger_count
+      end
+    end
+
+    context "using a string with dot delimiters" do
+      it "should create a new logger for each point in the path" do
+        Catamaran.logger( "com.mycompany.myrailsproject.app.models.User" )
+        Catamaran::Manager.num_loggers.should == target_logger_count
+      end
+    end
+
+    context "using a string with double-colon delimiters" do
+      it "should create a new logger for each point in the path" do
+        Catamaran.logger( "com::mycompany::myrailsproject::app::models::User" )
+        Catamaran::Manager.num_loggers.should == target_logger_count
+      end
+    end
+
+    context "using a string with mixed double-colon and dot delimiters" do
+      it "should create a new logger for each point in the path" do
+        Catamaran.logger( "com.mycompany::myrailsproject.app::models::User" )
+        Catamaran::Manager.num_loggers.should == target_logger_count
+      end
+    end
+
   end
-
-  context "when using a specified string and double-colons as the delimiter" do
-    it "should create a new loggers for each point in the path" do
-      Catamaran.logger
-      Catamaran::Manager.num_loggers.should == 1
-      Catamaran.logger( "com::mycompany::myrailsproject::app::models::User" )
-      Catamaran::Manager.num_loggers.should == 7    
-    end 
-  end         
 
   context "using log level constants" do
     it "should be possible for the user to modify the log level of root logger" do
