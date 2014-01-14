@@ -474,21 +474,21 @@ describe Catamaran do
     end
 
     describe "#debug?" do
-      it "should call default_debug? the first time" do
-        Catamaran.logger.should_receive( :default_debug? ).once
+      it "should call log_level the first time" do
+        Catamaran.logger.should_receive( :log_level ).once.and_return( Catamaran::LogLevel::NOTICE )
         Catamaran.logger.debug?
       end
 
-      it "should only call default_debug? once" do
+      it "should only call log_level once" do
         Catamaran.logger.debug?
-        Catamaran.logger.should_not_receive( :default_debug? )
+        Catamaran.logger.should_not_receive( :log_level )
         Catamaran.logger.debug?
       end  
 
-      it "should call default_debug? again after the memoizations have " do
+      it "should call log_level again after the memoizations have " do
         Catamaran.logger.debug?
         Catamaran::Manager.forget_memoizations()
-        Catamaran.logger.should_receive( :default_debug? ).once
+        Catamaran.logger.should_receive( :log_level ).once.and_return( Catamaran::LogLevel::NOTICE )
         Catamaran.logger.debug?
       end          
     end 
