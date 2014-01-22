@@ -12,7 +12,7 @@ Catamaran.logger.log_level = Catamaran::LogLevel::DEBUG
 Catamaran::Manager.formatter_caller_enabled = true
 
 # Uncomment if you'd prefer Ruby-style delimiters
-Catamaran::Manager.delimiter = '::'
+# Catamaran::Manager.delimiter = '::'
 
 # Uncomment to enable Catamaran internal debugging
 # Catamaran::debugging = true
