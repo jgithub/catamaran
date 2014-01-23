@@ -19,11 +19,11 @@ module Catamaran
     end
 
     def self.get_severity severity
-      LogLevel.severity_to_s severity
+      LogLevel.severity_to_s(severity).rjust(6)
     end
 
     def self.get_date
-      Time.now
+      "[#{Time.now}]"
     end
 
     def self.parse_elements pattern, data
