@@ -48,8 +48,7 @@ module Catamaran
     def self.construct_formatted_message( severity, path, msg, opts )
       pattern = "%c %P %d %p - %m".split(" ")
       log_elements = parse_elements pattern, {:severity => severity, :path => path, :msg => msg}
-      return log_elements.join " "
-
+      msg = log_elements.join(" ")
       # msg = sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}",
                     # LogLevel.severity_to_s( severity ),
                     # ( path.length > 47 ) ? path.dup[-47,47] : path  )
