@@ -24,6 +24,15 @@ describe Catamaran::Formatter do
       end
     end
 
+    context "with incomplete caller detail specified" do
+      let(:opts){ {:file => nil, :line => 42, :class => "Ford::Prefect", :method => "make_tea"} }
+
+      it "outputs the default format without extra information" do
+        message = Catamaran::Formatter.construct_formatted_message( severity, path, log_message, opts)
+        message.should match /^\s+ERROR\spid\-\d+\s\[.*\]\s#{path}\s\-\s#{log_message}/
+      end
+    end
+
     context "without caller detail specified, but caller information enabled" do
       it "outputs the default format with derived caller information" do
         Catamaran::Formatter.caller_enabled = true
