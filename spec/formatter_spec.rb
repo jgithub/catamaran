@@ -20,12 +20,7 @@ describe Catamaran::Formatter do
 
       it "outputs the default format with extra information" do
         message = Catamaran::Formatter.construct_formatted_message( severity, path, log_message, opts)
-        message.should match /#{log_message}/
-        message.should match /\s\(#{opts[:file]}/
-        message.should match /:#{opts[:line]}/
-        message.should match /:in \`#{opts[:class]}\./
-        message.should match /#{opts[:method]}\'/
-        message.should match /\)$/
+        message.should match /#{log_message}\s\(#{opts[:file]}:#{opts[:line]}:in \`#{opts[:class]}\.#{opts[:method]}\'\)$/
       end
     end
 

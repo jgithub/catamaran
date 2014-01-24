@@ -11,9 +11,6 @@ module Catamaran
       @@caller_enabled
     end
 
-    ##
-    # Construct a properly formatted log message based
-
     def self.get_pid
       "pid-#{Process.pid}"
     end
@@ -26,37 +23,33 @@ module Catamaran
       "[#{Time.now}]"
     end
 
-    def self.parse_elements pattern, data
-      pattern.each_with_object([]) do | element, log_line |
+    def self.tokenize pattern
+      pattern.split " "
+    end
+
+    def self.construct_from_pattern pattern, error_detail
+      tokens = tokenize pattern
+      tokens.each_with_object([]) do | element, log_line |
         case element
         when '%c'
-          log_line << get_severity(data[:severity])
+          log_line << get_severity(error_detail[:severity])
         when '%P'
           log_line << get_pid
         when '%d'
           log_line << get_date
         when '%p'
-          log_line << data[:path]
+          log_line << error_detail[:path]
         when '%m'
-          log_line << data[:msg]
+          log_line << error_detail[:msg]
         else
           log_line << element
         end
       end
     end
 
-    def self.construct_formatted_message( severity, path, msg, opts )
-      pattern = "%c %P %d %p - %m".split(" ")
-      log_elements = parse_elements pattern, {:severity => severity, :path => path, :msg => msg}
-      msg = log_elements.join(" ")
-      # msg = sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}",
-                    # LogLevel.severity_to_s( severity ),
-                    # ( path.length > 47 ) ? path.dup[-47,47] : path  )
+    def self.construct_formatted_message( severity, path, msg, opts, pattern: "%c %P %d %p - %m" )
+      msg = construct_from_pattern( pattern, {:severity => severity, :path => path, :msg => msg} ).join " "
 
-
-
-      ##
-      # Should the caller component be added to the msg
 
       if ( ( opts && opts[:file] && opts[:line] && opts[:method] ) || !@@caller_enabled )
         # if file and line number are specified or the caller_enabled is disabled
