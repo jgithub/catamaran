@@ -16,10 +16,11 @@ module Catamaran
 
 
     def self.construct_formatted_message( severity, path, msg, opts )
-      msg = sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", 
-                    LogLevel.severity_to_s( severity ), 
-                    ( path.length > 47 ) ? path.dup[-47,47] : path  )
-
+      if Manager::formatter_pattern == "%-6p pid-%pid [%d{yyyy-M-d HH:mm:ss:SSS}] %47C - %m"
+        msg = sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", 
+                      LogLevel.severity_to_s( severity ), 
+                      ( path.length > 47 ) ? path.dup[-47,47] : path  )
+      end
 
 
       ##

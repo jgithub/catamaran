@@ -28,6 +28,9 @@ module Catamaran
       Catamaran::Formatter.caller_enabled
     end    
 
+    def self.formatter_pattern
+      "%-6p pid-%pid [%d{yyyy-M-d HH:mm:ss:SSS}] %47C - %m"
+    end
 
 
     ##
