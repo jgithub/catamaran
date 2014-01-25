@@ -3,11 +3,21 @@ require "spec_helper"
 describe Catamaran::Formatter do
   before(:each){ Catamaran::Formatter.caller_enabled = false }
 
-  context "when using the default format" do
-    let(:severity){ 7000 }
-    let(:path){ '/douglas/adams' }
-    let(:log_message){ "Don't Panic" }
+  let(:severity){ 7000 }
+  let(:path){ '/douglas/adams' }
+  let(:log_message){ "Don't Panic" }
 
+  context "when using a custom format pattern" do
+    context "with no options" do
+      pattern = "%c (%d) %p PID: %P | %m"
+      it "outputs the custom format" do
+        message = Catamaran::Formatter.construct_formatted_message( severity, path, log_message, :pattern => pattern)
+        message.should match /^\s+ERROR\s\(.*\)\s#{path}\sPID:\s\d+\s\|\s#{log_message}$/
+      end
+    end
+  end
+
+  context "when using the default format" do
     context "with no options" do
       it "outputs the default format" do
         message = Catamaran::Formatter.construct_formatted_message( severity, path, log_message, {} )

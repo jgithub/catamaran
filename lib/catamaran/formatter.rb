@@ -2,11 +2,21 @@ module Catamaran
   class Formatter
     @@caller_enabled = false
 
-    def self.construct_formatted_message( severity, path, msg, opts, pattern: "%c %P %d %p - %m" )
-      msg = construct_from_pattern( pattern, {:severity => severity, :path => path, :msg => msg} ).join " "
+    def self.construct_formatted_message( severity, path, msg, opts={} )
+      pattern = opts.fetch :pattern, "%c pid-%P [%d] %p - %m"
+      msg = construct_from_pattern( pattern, {:severity => severity, :path => path, :msg => msg} )
       msg << append_caller_information(msg, opts)
       msg << append_backtrace_information(msg, opts)
       msg
+    end
+
+    def self.construct_from_pattern pattern, error_detail
+      log_line = pattern
+      log_line.gsub! /%d/, get_date
+      log_line.gsub! /%c/, get_severity(error_detail[:severity])
+      log_line.gsub! /%P/, get_pid
+      log_line.gsub! /%p/, error_detail[:path]
+      log_line.gsub! /%m/, error_detail[:msg]
     end
 
     def self.caller_enabled=( boolean_value )
@@ -18,7 +28,7 @@ module Catamaran
     end
 
     def self.get_pid
-      "pid-#{Process.pid}"
+      Process.pid.to_s
     end
 
     def self.get_severity severity
@@ -26,7 +36,7 @@ module Catamaran
     end
 
     def self.get_date
-      "[#{Time.now}]"
+      Time.now.to_s
     end
 
     def self.tokenize pattern
@@ -64,25 +74,6 @@ module Catamaran
       msg
     end
 
-    def self.construct_from_pattern pattern, error_detail
-      tokens = tokenize pattern
-      tokens.each_with_object([]) do | element, log_line |
-        case element
-        when '%c'
-          log_line << get_severity(error_detail[:severity])
-        when '%P'
-          log_line << get_pid
-        when '%d'
-          log_line << get_date
-        when '%p'
-          log_line << error_detail[:path]
-        when '%m'
-          log_line << error_detail[:msg]
-        else
-          log_line << element
-        end
-      end
-    end
   end
 end
 
