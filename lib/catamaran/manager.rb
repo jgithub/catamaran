@@ -28,6 +28,13 @@ module Catamaran
       Catamaran::Formatter.caller_enabled
     end    
 
+    def self.formatter_pattern
+      @formatter_pattern ||= "%-6p pid-%pid [%d{yyyy-M-d HH:mm:ss:SSS}] %47C - %m"
+    end
+
+    def self.formatter_pattern=( value )
+      @formatter_pattern = value
+    end
 
 
     ##
@@ -47,6 +54,8 @@ module Catamaran
       Catamaran::LogLevel.reset
       
       Catamaran::Outputter.reset
+
+      Catamaran::Formatter.reset
 
       # Resetting Catamaran probably should not reset the output settings
       # self.send( :_stdout_flag=, nil )
