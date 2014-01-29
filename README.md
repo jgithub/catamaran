@@ -8,7 +8,7 @@ Catamaran was built around a named hierarchy and level inheritance, and with per
 Gemfile
 -------
 
-    gem 'catamaran', '~> 2.4.0'
+    gem 'catamaran', '~> 2.5.0'
 
 Rails-related setup:
 
