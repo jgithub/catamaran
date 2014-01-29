@@ -1,25 +1,29 @@
 module Catamaran
-  class Formatter   
-    # Using caller() in the log messages is DISABLED by default
+  class Formatter
     @@caller_enabled = false
 
-    def self.caller_enabled=( boolean_value )
-      @@caller_enabled = boolean_value
-    end
-
-    def self.caller_enabled
-      @@caller_enabled
-    end    
-
-    ##
-    # Construct a properly formatted log message based
+    FAVORITE_FORMATTER_PATTERNS = {
+      "%-6p pid-%pid [%d{yyyy-M-d HH:mm:ss:SSS}] %47C - %m"  => 1,
+      "%c pid-%P [%d] %p - %m" => 2
+    }      
 
 
-    def self.construct_formatted_message( severity, path, msg, opts )
-      if Manager::formatter_pattern == "%-6p pid-%pid [%d{yyyy-M-d HH:mm:ss:SSS}] %47C - %m"
-        msg = sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", 
-                      LogLevel.severity_to_s( severity ), 
-                      ( path.length > 47 ) ? path.dup[-47,47] : path  )
+    def self.construct_formatted_message( severity, path, msg, opts = nil )
+      if opts && opts[:pattern]
+        full_msg = construct_custom_pattern( severity, path, msg, opts )
+      else
+        unless @favorite_pattern_number
+          @favorite_pattern_number = FAVORITE_FORMATTER_PATTERNS[Manager::formatter_pattern]
+        end
+
+        if ( @favorite_pattern_number == 1 )
+          full_msg = construct_favorite_pattern_number_1( severity, path, msg, opts )
+        elsif ( @favorite_pattern_number == 2 )
+          full_msg = construct_favorite_pattern_number_2( severity, path, msg, opts )
+        else
+          # A "favorite pattern" (better for performance) was not specified.  Construct a custom message
+          full_msg = construct_custom_pattern( severity, path, msg, opts )
+        end
       end
 
 
@@ -44,31 +48,31 @@ module Catamaran
       # Otherwise append what optional information we can determine
 
       if append_caller_information
-        msg << " (#{caller(4)[0]})"
+        full_msg << " (#{caller(4)[0]})"
       else
         ##
         # Append some suffix info if it has been specified
         #
         if opts
           if opts[:file]
-            msg << " (#{opts[:file]}"
+            full_msg << " (#{opts[:file]}"
 
             if opts[:line]
-              msg << ":#{opts[:line]}"
+              full_msg << ":#{opts[:line]}"
             end
 
             if opts[:class] || opts[:method]
-              msg << ":in `"
+              full_msg << ":in `"
             
               if opts[:class] 
-                msg << "#{opts[:class]}."
+                full_msg << "#{opts[:class]}."
               end
 
-              msg << "#{opts[:method]}" if opts[:method]
-              msg << "'"
+              full_msg << "#{opts[:method]}" if opts[:method]
+              full_msg << "'"
             end
 
-            msg << ')'
+            full_msg << ')'
           end
         end  
       end 
@@ -78,12 +82,57 @@ module Catamaran
       # Append the backtrace information if it has been requested by the user                   
       if opts && opts[:backtrace] == true
         # Implicit return
-        msg << " from:\n#{caller(4).take(10).join("\n")}"
+        full_msg << " from:\n#{caller(4).take(10).join("\n")}"
       end
 
-      # Implicit return
-      msg
+      full_msg
     end
+
+    def self.caller_enabled=( boolean_value )
+      @@caller_enabled = boolean_value
+    end
+
+    def self.caller_enabled
+      @@caller_enabled
+    end
+
+    def self.append_caller_information?
+      @@caller_enabled
+    end
+
+    def self.reset
+      @favorite_pattern_number = nil 
+    end
+
+
+    protected
+
+    def self.construct_favorite_pattern_number_1( severity, path, msg, opts )
+      sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", 
+                        LogLevel.severity_to_s( severity ), 
+                        ( path.length > 47 ) ? path.dup[-47,47] : path  )
+    end
+
+    def self.construct_favorite_pattern_number_2( severity, path, msg, opts )
+      sprintf( "%6s pid-#{Process.pid} [#{Time.now.to_s}] %s - #{msg}", 
+                         LogLevel.severity_to_s( severity ),
+                         path )
+    end 
+
+    def self.construct_custom_pattern( severity, path, msg, opts )
+      if opts && opts[:pattern]
+        full_msg = opts[:pattern].dup    # dup may be extra work
+      else
+        full_msg = Manager::formatter_pattern.dup
+      end
+
+      full_msg.gsub! /%d/, Time.now.to_s
+      full_msg.gsub! /%c/, LogLevel.severity_to_s(severity).rjust(6)
+      full_msg.gsub! /%P/, Process.pid.to_s
+      full_msg.gsub! /%p/, path
+      full_msg.gsub! /%m/, msg
+    end  
+
   end
 end
-      
+

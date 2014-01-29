@@ -56,3 +56,4 @@ Catamaran::Manager.stderr = true
 Kernel.send( :remove_const, 'CatLogger' ) if Kernel.const_defined?( 'CatLogger' )
 Kernel.const_set( 'CatLogger', Catamaran.logger )
 
+Catamaran::Manager::reset
