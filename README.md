@@ -1,5 +1,6 @@
 Catamaran
 =========
+[![Build Status](https://travis-ci.org/jgithub/catamaran.png?branch=master)](https://travis-ci.org/jgithub/catamaran)
 
 Logging is a powerful and often undervalued tool in software development.  When done right, it's a great way to document code, and it provides a simple &amp; effective way to solve problems when things go awry.  All an important part of maintainable code. 
 
