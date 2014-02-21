@@ -4,7 +4,8 @@ module Catamaran
 
     FAVORITE_FORMATTER_PATTERNS = {
       "%-6p pid-%pid [%d{yyyy-M-d HH:mm:ss:SSS}] %47C - %m"  => 1,
-      "%c pid-%P [%d] %p - %m" => 2
+      "%c pid-%P [%d] %p - %m" => 2,
+      "%-6p pid-%pid [%d{yyyy-M-dTHH:mm:ss.SSSZ}] %47C - %m"  => 3
     }      
 
 
@@ -20,6 +21,8 @@ module Catamaran
           full_msg = construct_favorite_pattern_number_1( severity, path, msg, opts )
         elsif ( @favorite_pattern_number == 2 )
           full_msg = construct_favorite_pattern_number_2( severity, path, msg, opts )
+        elsif ( @favorite_pattern_number == 3 )
+          full_msg = construct_favorite_pattern_number_3( severity, path, msg, opts )
         else
           # A "favorite pattern" (better for performance) was not specified.  Construct a custom message
           full_msg = construct_custom_pattern( severity, path, msg, opts )
@@ -118,6 +121,12 @@ module Catamaran
                          LogLevel.severity_to_s( severity ),
                          path )
     end 
+
+    def self.construct_favorite_pattern_number_3( severity, path, msg, opts )
+      sprintf( "%6s pid-#{Process.pid} [#{Time.now.gmtime.strftime( "%G-%m-%dT%H:%M:%S.%LZ" )}] %47s - #{msg}", 
+                        LogLevel.severity_to_s( severity ), 
+                        ( path.length > 47 ) ? path.dup[-47,47] : path  )
+    end    
 
     def self.construct_custom_pattern( severity, path, msg, opts )
       if opts && opts[:pattern]
