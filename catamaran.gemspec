@@ -10,6 +10,9 @@ Gem::Specification.new do |s|
   s.homepage         = "http://github.com/jgithub/catamaran"
   s.files            = `git ls-files`.split("\n")
   s.licenses         = ['MIT']
+
+  s.add_dependency 'rake'
+  s.add_development_dependency 'rspec'
 end
 
 
