@@ -9,7 +9,7 @@ describe Catamaran::Formatter do
 
   context "when using a custom format pattern" do
     context "with no options" do
-      pattern = "%c (%d) %p PID: %P | %m"
+      let(:pattern) { "%c (%d) %p PID: %P | %m" }
       it "outputs the custom format" do
         message = Catamaran::Formatter.construct_formatted_message( severity, path, log_message, :pattern => pattern)
         message.should match /^\s+ERROR\s\(.*\)\s#{path}\sPID:\s\d+\s\|\s#{log_message}$/
@@ -17,7 +17,7 @@ describe Catamaran::Formatter do
     end
   end
 
-  context "when a custom format pattern is not specified" do
+  context "when a custom format pattern is NOT specified" do
     it "should make use of Manager.formatter_pattern" do
       Catamaran::Manager::formatter_pattern = "%c pid-%P [%d] %p - %m"
       message = Catamaran::Formatter.construct_formatted_message( severity, path, log_message, {} )
@@ -25,7 +25,7 @@ describe Catamaran::Formatter do
 
       Catamaran::Manager.reset
 
-      Catamaran::Manager::formatter_pattern = "%-6p pid-%pid [%d{yyyy-M-d HH:mm:ss:SSS}] %47C - %m"
+      Catamaran::Manager::formatter_pattern = "%-6p pid-%pid [%d{yyyy-MM-dd HH:mm:ss.SSS}] %47C - %m"
       message = Catamaran::Formatter.construct_formatted_message( severity, path, log_message, {} )
       message.should match /^\s+ERROR\spid\-\d+\s\[.*\]\s\s\s\s\s\s\s\s\s\s\s+#{path}\s\-\s#{log_message}$/
     end

@@ -1,11 +1,17 @@
+require 'date'
+
 module Catamaran
   class Formatter
     @@caller_enabled = false
 
     FAVORITE_FORMATTER_PATTERNS = {
-      "%-6p pid-%pid [%d{yyyy-M-d HH:mm:ss:SSS}] %47C - %m"  => 1,
+      "%-6p pid-%pid [%d{ISO8601}] %47C - %m"  => 1,
       "%c pid-%P [%d] %p - %m" => 2,
-      "%-6p pid-%pid [%d{yyyy-M-dTHH:mm:ss.SSSZ}] %47C - %m"  => 3
+
+      "%-6p pid-%pid [%d{yyyy-MM-ddTHH:mm:ss.SSSZ}] %47C - %m"  => 3,
+      "%-6p pid-%pid [%d{ISO8601Z}] %47C - %m"  => 3,
+      
+      "%-6p pid-%pid [%d{yyyy-MM-dd HH:mm:ss.SSS}] %47C - %m"  => 4, 
     }      
 
 
@@ -23,6 +29,8 @@ module Catamaran
           full_msg = construct_favorite_pattern_number_2( severity, path, msg, opts )
         elsif ( @favorite_pattern_number == 3 )
           full_msg = construct_favorite_pattern_number_3( severity, path, msg, opts )
+        elsif ( @favorite_pattern_number == 4 )
+          full_msg = construct_favorite_pattern_number_4( severity, path, msg, opts )
         else
           # A "favorite pattern" (better for performance) was not specified.  Construct a custom message
           full_msg = construct_custom_pattern( severity, path, msg, opts )
@@ -111,10 +119,10 @@ module Catamaran
     protected
 
     def self.construct_favorite_pattern_number_1( severity, path, msg, opts )
-      sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%G-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", 
+      sprintf( "%6s pid-#{Process.pid} [#{DateTime.now.iso8601}] %47s - #{msg}", 
                         LogLevel.severity_to_s( severity ), 
                         ( path.length > 47 ) ? path.dup[-47,47] : path  )
-    end
+    end 
 
     def self.construct_favorite_pattern_number_2( severity, path, msg, opts )
       sprintf( "%6s pid-#{Process.pid} [#{Time.now.to_s}] %s - #{msg}", 
@@ -123,10 +131,17 @@ module Catamaran
     end 
 
     def self.construct_favorite_pattern_number_3( severity, path, msg, opts )
-      sprintf( "%6s pid-#{Process.pid} [#{Time.now.gmtime.strftime( "%G-%m-%dT%H:%M:%S.%LZ" )}] %47s - #{msg}", 
+      sprintf( "%6s pid-#{Process.pid} [#{Time.now.gmtime.strftime( "%Y-%m-%dT%H:%M:%S.%LZ" )}] %47s - #{msg}", 
                         LogLevel.severity_to_s( severity ), 
                         ( path.length > 47 ) ? path.dup[-47,47] : path  )
-    end    
+    end 
+
+    def self.construct_favorite_pattern_number_4( severity, path, msg, opts )
+      sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%Y-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", 
+                        LogLevel.severity_to_s( severity ), 
+                        ( path.length > 47 ) ? path.dup[-47,47] : path  )
+    end
+         
 
     def self.construct_custom_pattern( severity, path, msg, opts )
       if opts && opts[:pattern]
