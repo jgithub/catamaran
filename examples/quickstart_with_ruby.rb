@@ -53,7 +53,7 @@ class QuickstartWithRuby
 end
 
 
-Catamaran::Manager.formatter_pattern = "%-6p pid-%pid [%d{ISO8601}] %47C - %m"
+# Catamaran::Manager.formatter_pattern = "%-6p pid-%pid [%d{ISO8601}] %47C - %m"
 
 quickstart_with_ruby = QuickstartWithRuby.new
 quickstart_with_ruby.demonstrating_log_levels
