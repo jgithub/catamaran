@@ -119,27 +119,27 @@ module Catamaran
     protected
 
     def self.construct_favorite_pattern_number_1( severity, path, msg, opts )
-      sprintf( "%6s pid-#{Process.pid} [#{DateTime.now.iso8601}] %47s - #{msg}", 
+      sprintf( "%6s pid-#{Process.pid} [#{DateTime.now.iso8601}] %47s", 
                         LogLevel.severity_to_s( severity ), 
-                        ( path.length > 47 ) ? path.dup[-47,47] : path  )
+                        ( path.length > 47 ) ? path.dup[-47,47] : path ) + " - #{msg}"
     end 
 
     def self.construct_favorite_pattern_number_2( severity, path, msg, opts )
-      sprintf( "%6s pid-#{Process.pid} [#{Time.now.to_s}] %s - #{msg}", 
+      sprintf( "%6s pid-#{Process.pid} [#{Time.now.to_s}] %s", 
                          LogLevel.severity_to_s( severity ),
-                         path )
+                         path ) + " - #{msg}"
     end 
 
     def self.construct_favorite_pattern_number_3( severity, path, msg, opts )
-      sprintf( "%6s pid-#{Process.pid} [#{Time.now.gmtime.strftime( "%Y-%m-%dT%H:%M:%S.%LZ" )}] %47s - #{msg}", 
+      sprintf( "%6s pid-#{Process.pid} [#{Time.now.gmtime.strftime( "%Y-%m-%dT%H:%M:%S.%LZ" )}] %47s", 
                         LogLevel.severity_to_s( severity ), 
-                        ( path.length > 47 ) ? path.dup[-47,47] : path  )
+                        ( path.length > 47 ) ? path.dup[-47,47] : path  ) + " - #{msg}"
     end 
 
     def self.construct_favorite_pattern_number_4( severity, path, msg, opts )
-      sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%Y-%m-%d %H:%M:%S:%L" )}] %47s - #{msg}", 
+      sprintf( "%6s pid-#{Process.pid} [#{Time.now.strftime( "%Y-%m-%d %H:%M:%S:%L" )}] %47s", 
                         LogLevel.severity_to_s( severity ), 
-                        ( path.length > 47 ) ? path.dup[-47,47] : path  )
+                        ( path.length > 47 ) ? path.dup[-47,47] : path  ) + " - #{msg}"
     end
          
 
