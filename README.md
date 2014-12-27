@@ -212,7 +212,7 @@ LOGGER.notice "This is a NOTICE log"
 LOGGER.warn "This is a WARN log"
 LOGGER.error "This is a ERROR log" 
 LOGGER.severe "This is a SEVERE log" 
-LOGGER.severe "This is a FATAL log" 
+LOGGER.fatal "This is a FATAL log" 
 ```
 
 ### Performance implications of using `caller`
