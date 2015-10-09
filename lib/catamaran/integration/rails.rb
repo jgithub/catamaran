@@ -14,7 +14,7 @@ module Catamaran
           end
 
           initializer :load_environment_specific_catamaran do
-            initializer = Rails.root.join( "config", "initializers", "catamaran", "#{Rails.env}.rb" )
+            initializer = Rails.root.join( "config", "catamaran", "#{Rails.env}.rb" )
             require initializer if File.exist?( initializer )
           end
         end

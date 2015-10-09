@@ -13,9 +13,8 @@ module Catamaran
       end
 
       def copy_settings
-        directory "catamaran", "config/initializers/catamaran" 
+        directory "catamaran", "config/catamaran" 
       end
-
     end
   end
 end

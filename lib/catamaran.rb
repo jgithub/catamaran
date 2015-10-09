@@ -45,11 +45,19 @@ end
 # add rails integration
 require('catamaran/integration/rails') if defined?(Rails)
 
-# By default, Catamaran should write messages to STDERR (in addition to anywhere else configured)
-Catamaran::Manager.stderr = true
+# By default, Catamaran should not write message to STDOUT
+# Catamaran::Manager.stderr = false
 
-# By default, Catamaran will not write message to STDOUT
+# By default, Catamaran should not write message to STDOUT
 # Catamaran::Manager.stdout = false
+
+if [1,'1','t', 'true', 'y', 'yes','T', 'TRUE', 'Y', 'YES', true].include?( ENV['CATAMARAN_STDERR'] ) 
+  Catamaran::Manager.stderr = true
+end
+
+if [1,'1','t', 'true', 'y', 'yes','T', 'TRUE', 'Y', 'YES', true].include?( ENV['CATAMARAN_STDOUT'] ) 
+  Catamaran::Manager.stdout = true
+end
 
 ##
 # Define the CatLogger alias for the Catamaran root logger
