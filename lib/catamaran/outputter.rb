@@ -21,7 +21,7 @@ module Catamaran
         begin
           output_file.write( formatted_msg )
         rescue Exception => e
-          $stderr.puts( "Catamaran is unable to write to logfile: #{output_file}" )
+          $stderr.puts( "Catamaran is unable to write to logfile: #{output_file}.  Reason: #{e}" )
         end
       end if _output_files
     end
