@@ -488,7 +488,7 @@ module Catamaran
 
     def _format_msg( severity, msg, opts )
       # Implicit return
-      Formatter.construct_formatted_message( severity, self.path_to_s(), msg, opts )
+      Formatter.construct_formatted_message( severity, self.path_to_s(), (msg && msg.respond_to?(:force_encoding) ? msg.force_encoding('UTF-8') : msg), opts )
     end
 
     ##
